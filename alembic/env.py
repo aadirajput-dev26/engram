@@ -49,9 +49,17 @@ def do_run_migrations(connection: Connection) -> None:
         context.run_migrations()
 
 
+def _no_prepared_stmt():
+    return ""
+
 async def run_async_migrations() -> None:
     """In this scenario we need to create an Engine and associate a connection with the context."""
-    connect_args = {"ssl": "require"} if settings.SERVICE_ENV == "production" else {}
+    connect_args = {
+        "prepared_statement_name_func": _no_prepared_stmt,
+        "statement_cache_size": 0
+    }
+    if settings.SERVICE_ENV == "production":
+        connect_args["ssl"] = "require"
     
     connectable = async_engine_from_config(
         config.get_section(config.config_ini_section, {}),
