@@ -18,12 +18,13 @@ class Document(Base, UUIDPrimaryKeyMixin, TimestampMixin):
 
     org_id = Column(UUID(as_uuid=True), nullable=False, index=True)
     workspace_id = Column(UUID(as_uuid=True), nullable=False, index=True)
-    folder_id = Column(UUID(as_uuid=True), nullable=True)
+    folder_id = Column(UUID(as_uuid=True), ForeignKey("collections.id"), nullable=True)
     filename = Column(String(512), nullable=False)
     content_hash = Column(String(64), nullable=False, index=True)
     current_version_id = Column(UUID(as_uuid=True), nullable=True)
 
     # Relationships
+    collection = relationship("Collection", back_populates="documents")
     versions = relationship(
         "DocumentVersion", back_populates="document", cascade="all, delete-orphan"
     )

@@ -34,6 +34,7 @@ class ScopeFilter(BaseModel):
     org_id: UUID
     workspace_id: UUID
     document_ids: Optional[List[UUID]] = None
+    collection_id: Optional[UUID] = None
 
 
 # --- Citation ---

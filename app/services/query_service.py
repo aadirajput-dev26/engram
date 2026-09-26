@@ -11,6 +11,9 @@ from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+
+from app.models.document import Document
 
 from app.core.config import get_settings
 from app.core.generation.context_builder import build_context
@@ -23,11 +26,8 @@ from app.core.retrieval.keyword import keyword_search
 from app.core.retrieval.semantic import semantic_search
 from app.core.validation.citation_service import build_citations
 from app.core.validation.claim_verifier import verify_response
-from app.domain.query_templates import templates
 
 logger = get_logger(__name__)
-
-
 async def _execute_structured_lookup(
     db: AsyncSession,
     org_id: UUID,
@@ -37,49 +37,7 @@ async def _execute_structured_lookup(
     document_ids: Optional[List[UUID]] = None,
 ) -> List[Dict[str, Any]]:
     """Look up structured facts using fixed parameterized SQL templates."""
-    metric = classification.metrics[0] if classification.metrics else "production"
-    period = classification.periods[0] if classification.periods else ""
-
-    if classification.mines:
-        return await templates.get_metric_by_mine_and_period(
-            session=db,
-            org_id=org_id,
-            workspace_id=workspace_id,
-            metric=metric,
-            mine_name=classification.mines[0],
-            period_value=period,
-            document_ids=document_ids,
-        )
-    elif classification.subsidiaries:
-        return await templates.get_metric_aggregate_by_subsidiary_and_period(
-            session=db,
-            org_id=org_id,
-            workspace_id=workspace_id,
-            metric=metric,
-            subsidiary_name=classification.subsidiaries[0],
-            period_value=period,
-            document_ids=document_ids,
-        )
-    elif classification.comparison and len(classification.periods) > 1:
-        entity = classification.mines[0] if classification.mines else (classification.subsidiaries[0] if classification.subsidiaries else None)
-        return await templates.compare_metric_across_periods(
-            session=db,
-            org_id=org_id,
-            workspace_id=workspace_id,
-            metric=metric,
-            entity_name=entity,
-            periods=classification.periods,
-            document_ids=document_ids,
-        )
-    else:
-        return await templates.get_metric_summary(
-            session=db,
-            org_id=org_id,
-            workspace_id=workspace_id,
-            metric=metric,
-            period_value=period or None,
-            document_ids=document_ids,
-        )
+    return []
 
 
 async def process_query(
@@ -88,6 +46,7 @@ async def process_query(
     org_id: str,
     workspace_id: str,
     document_ids: Optional[List[str]] = None,
+    collection_id: Optional[str] = None,
     top_k: Optional[int] = None,
     route_override: Optional[str] = None,
 ) -> Dict[str, Any]:
@@ -102,6 +61,21 @@ async def process_query(
     org_uuid = UUID(org_id)
     ws_uuid = UUID(workspace_id)
     doc_uuids = [UUID(d) for d in document_ids] if document_ids else None
+    
+    # Resolve collection_id to document_ids
+    if collection_id:
+        col_stmt = select(Document.id).where(
+            Document.folder_id == UUID(collection_id),
+            Document.org_id == org_uuid,
+            Document.workspace_id == ws_uuid,
+        )
+        col_res = await db.execute(col_stmt)
+        col_doc_ids = list(col_res.scalars().all())
+        if doc_uuids:
+            # Intersection if both provided
+            doc_uuids = list(set(doc_uuids).intersection(set(col_doc_ids)))
+        else:
+            doc_uuids = col_doc_ids
 
     # Classify route
     classification = get_query_classification(query_text)

@@ -17,8 +17,6 @@ from uuid import UUID
 
 from app.core.logging import get_logger
 from app.db.session import async_session_factory
-from app.domain.reports.report_service import generate_report_draft
-from app.domain.topics.topic_service import run_topic_analysis
 from app.services.document_service import process_document_pipeline
 from app.workers.job_queue import claim_next_task, complete_task, fail_task
 
@@ -47,38 +45,10 @@ async def execute_task(task) -> None:
                     file_path=file_path,
                 )
 
-            elif task_type == "TOPIC_ANALYSIS":
-                job_id = UUID(payload["job_id"])
-                org_id = UUID(payload["org_id"])
-                workspace_id = UUID(payload["workspace_id"])
-                doc_ids_raw = payload.get("document_ids")
-                doc_ids = [UUID(d) for d in doc_ids_raw] if doc_ids_raw else None
-                num_topics = payload.get("num_topics", 5)
-                await run_topic_analysis(
-                    db=session,
-                    job_id=job_id,
-                    org_id=org_id,
-                    workspace_id=workspace_id,
-                    document_ids=doc_ids,
-                    num_topics=num_topics,
-                )
-
-            elif task_type == "REPORT_GENERATE":
-                job_id = UUID(payload["job_id"])
-                org_id = UUID(payload["org_id"])
-                workspace_id = UUID(payload["workspace_id"])
-                report_type = payload["report_type"]
-                parameters = payload.get("parameters", {})
-                output_format = payload.get("output_format", "docx")
-                await generate_report_draft(
-                    db=session,
-                    job_id=job_id,
-                    org_id=org_id,
-                    workspace_id=workspace_id,
-                    report_type=report_type,
-                    parameters=parameters,
-                    output_format=output_format,
-                )
+            elif task_type in ("TOPIC_ANALYSIS", "REPORT_GENERATE"):
+                logger.warning("Task type %s is not yet implemented", task_type)
+                await fail_task(session, task.id, f"Task type {task_type} is not yet implemented")
+                return
 
             else:
                 logger.error("Unknown task type: %s", task_type)

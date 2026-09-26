@@ -39,6 +39,23 @@ async def search(
     settings = get_settings()
     top_k = request.top_k or settings.RETRIEVAL_TOP_K_FINAL
     document_ids = [str(d) for d in request.scope.document_ids] if request.scope.document_ids else None
+    
+    if request.scope.collection_id:
+        from uuid import UUID
+        from sqlalchemy import select
+        from app.models.document import Document
+        
+        col_stmt = select(Document.id).where(
+            Document.folder_id == request.scope.collection_id,
+            Document.org_id == request.scope.org_id,
+            Document.workspace_id == request.scope.workspace_id,
+        )
+        col_res = await db.execute(col_stmt)
+        col_doc_ids = [str(uid) for uid in col_res.scalars().all()]
+        if document_ids:
+            document_ids = list(set(document_ids).intersection(set(col_doc_ids)))
+        else:
+            document_ids = col_doc_ids
 
     # Semantic search
     semantic_results = semantic_search(

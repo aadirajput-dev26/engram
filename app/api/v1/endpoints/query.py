@@ -34,6 +34,7 @@ async def query(
         org_id=str(request.scope.org_id),
         workspace_id=str(request.scope.workspace_id),
         document_ids=document_ids,
+        collection_id=str(request.scope.collection_id) if request.scope.collection_id else None,
         top_k=request.top_k,
         route_override=request.route_override,
     )
