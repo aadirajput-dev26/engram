@@ -27,7 +27,7 @@ def get_engine():
 
         # Supabase requires SSL in production.
         # asyncpg accepts ssl as a connect_arg.
-        connect_args = {"ssl": "require"} if is_production else {}
+        connect_args = {"ssl": "require", "prepared_statement_cache_size": 0, "statement_cache_size": 0} if is_production else {"prepared_statement_cache_size": 0, "statement_cache_size": 0}
 
         _engine = create_async_engine(
             settings.AI_DATABASE_URL,
