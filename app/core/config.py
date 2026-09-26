@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Literal, Optional
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -35,6 +35,16 @@ class Settings(BaseSettings):
         default="postgresql+asyncpg://postgres:postgres@localhost:5432/rag_ai",
         description="AI-owned PostgreSQL schema connection string",
     )
+
+    @field_validator("AI_DATABASE_URL")
+    @classmethod
+    def force_asyncpg(cls, v: str) -> str:
+        """Ensure the URL uses the asyncpg driver, converting Supabase default URLs."""
+        if v.startswith("postgres://"):
+            return v.replace("postgres://", "postgresql+asyncpg://", 1)
+        if v.startswith("postgresql://"):
+            return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return v
 
     # --- 3. Object Storage ---
     STORAGE_BACKEND: Literal["local", "s3"] = "local"
