@@ -40,18 +40,12 @@ def upgrade() -> None:
     op.create_foreign_key(None, 'chunks', 'document_versions', ['document_version_id'], ['id'])
     op.create_foreign_key(None, 'chunks', 'documents', ['document_id'], ['id'])
     op.drop_column('chunks', 'tsv')
-    op.alter_column('document_metadata', 'detected_dates',
-               existing_type=postgresql.JSONB(astext_type=sa.Text()),
-               type_=postgresql.ARRAY(sa.String()),
-               nullable=True)
-    op.alter_column('document_metadata', 'detected_subsidiary_names',
-               existing_type=postgresql.JSONB(astext_type=sa.Text()),
-               type_=postgresql.ARRAY(sa.String()),
-               nullable=True)
-    op.alter_column('document_metadata', 'detected_mine_names',
-               existing_type=postgresql.JSONB(astext_type=sa.Text()),
-               type_=postgresql.ARRAY(sa.String()),
-               nullable=True)
+    op.drop_column('document_metadata', 'detected_dates')
+    op.add_column('document_metadata', sa.Column('detected_dates', postgresql.ARRAY(sa.String()), nullable=True))
+    op.drop_column('document_metadata', 'detected_subsidiary_names')
+    op.add_column('document_metadata', sa.Column('detected_subsidiary_names', postgresql.ARRAY(sa.String()), nullable=True))
+    op.drop_column('document_metadata', 'detected_mine_names')
+    op.add_column('document_metadata', sa.Column('detected_mine_names', postgresql.ARRAY(sa.String()), nullable=True))
     op.alter_column('document_metadata', 'language',
                existing_type=sa.VARCHAR(length=32),
                type_=sa.String(length=16),
