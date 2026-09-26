@@ -13,6 +13,8 @@ from app.core.config import get_settings
 _engine = None
 _async_session_factory = None
 
+def _no_prepared_stmt():
+    return ""
 
 def get_engine():
     """Get or create the async SQLAlchemy engine.
@@ -27,7 +29,15 @@ def get_engine():
 
         # Supabase requires SSL in production.
         # asyncpg accepts ssl as a connect_arg.
-        connect_args = {"ssl": "require", "prepared_statement_cache_size": 0, "statement_cache_size": 0} if is_production else {"prepared_statement_cache_size": 0, "statement_cache_size": 0}
+        # statement_cache_size=0 completely disables asyncpg's internal statement caching
+        # prepared_statement_name_func ensures SQLAlchemy doesn't try to name them anyway
+        connect_args = {
+            "prepared_statement_name_func": _no_prepared_stmt,
+            "statement_cache_size": 0
+        }
+        
+        if is_production:
+            connect_args["ssl"] = "require"
 
         _engine = create_async_engine(
             settings.AI_DATABASE_URL,
