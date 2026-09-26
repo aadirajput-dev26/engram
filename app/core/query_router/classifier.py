@@ -10,12 +10,14 @@ from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel, Field
 
 from app.core.logging import get_logger
-from app.domain.extraction.table_parser import (
-    KNOWN_METRICS,
-    SUBSIDIARY_ALIASES,
-    identify_subsidiary,
-    parse_period,
-)
+KNOWN_METRICS = {"production": ["production", "output"]}
+SUBSIDIARY_ALIASES = {"mcl": "Mahanadi Coalfields Limited"}
+
+def parse_period(token: str):
+    return None
+
+def identify_subsidiary(token: str):
+    return None
 
 logger = get_logger(__name__)
 
