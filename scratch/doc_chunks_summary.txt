@@ -1,0 +1,3433 @@
+=== Page 1-1 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 1
+CMPDI / CIL Synthetic Statistical Mining Report
+— Regional Assessment 2025–26
+Synthetic Technical & Statistical Mining Report
+Designed for testing PDF parsing, OCR, PageIndex structure extraction, table extraction, chunking,
+embeddings, hybrid retrieval, citation and validation.
+Important: All organizations, mines, measurements, names and statistics in this document are synthetic. They do not represent
+actual CMPDI, CIL or subsidiary data.
+
+=== Page 2-2 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 2
+Executive Summary
+Executive Summary — Table Group 1
+Executive Summary presents synthetic operational and geological observations for reporting year 2023. The dataset is intentionally
+structured to resemble a technical mining report and contains repeated cross-references between mine-level production, exploration
+activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Energy Consumption
+1627.11
+1781.72
+1749.68
+2067.09
+2030.12
+m3
+Medium
+Grade Quality
+495.8
+531.33
+585.26
+495.19
+527.6
+GWh
+High
+Dispatch
+5192.61
+3971.9
+5187.12
+5023.41
+4479.31
+ha
+High
+Boreholes Completed
+4972.71
+5482.63
+5444.17
+5416.58
+5270.73
+t
+Medium
+Dispatch
+7962.04
+10287.1
+7827.85
+8452.88
+9430.93
+ML
+Medium
+Drilling Meterage
+1040.52
+1111.96
+1136.09
+1053.85
+1113.88
+m3
+High
+Key Indicators
+Indicator
+Value
+Unit
+Period
+Source Context
+Annual production
+5,754
+kt
+2025-26
+Executive Summary, Table 3
+Exploration coverage
+74.50
+%
+2025-26
+Executive Summary, Table 3
+Average productivity
+6.71
+t/man-shift
+2025-26
+Executive Summary, Table 3
+Recovery factor
+66.37
+%
+2025-26
+Executive Summary, Table 3
+
+=== Page 2-2 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Energy Consumption | 1627.11 | 1781.72 | 1749.68 | 2067.09 | 2030.12 | m3 | Medium
+Grade Quality | 495.8 | 531.33 | 585.26 | 495.19 | 527.6 | GWh | High
+Dispatch | 5192.61 | 3971.9 | 5187.12 | 5023.41 | 4479.31 | ha | High
+Boreholes Completed | 4972.71 | 5482.63 | 5444.17 | 5416.58 | 5270.73 | t | Medium
+Dispatch | 7962.04 | 10287.1 | 7827.85 | 8452.88 | 9430.93 | ML | Medium
+Drilling Meterage | 1040.52 | 1111.96 | 1136.09 | 1053.85 | 1113.88 | m3 | High
+
+=== Page 2-2 ===
+Indicator | Value | Unit | Period | Source Context
+----------------------------------------
+Annual production | 5,754 | kt | 2025-26 | Executive Summary, Table 3
+Exploration coverage | 74.50 | % | 2025-26 | Executive Summary, Table 3
+Average productivity | 6.71 | t/man-shift | 2025-26 | Executive Summary, Table 3
+Recovery factor | 66.37 | % | 2025-26 | Executive Summary, Table 3
+
+=== Page 3-3 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Net Geological Reserves | 3764.59 | 3800.95 | 3779.96 | 3076.57 | 3724.15 | m | High
+Dispatch | 5946.95 | 7302.27 | 6811.73 | 5842.88 | 6059.31 | t | High
+Coal Recovery | 647.26 | 570.62 | 507.06 | 667.77 | 602.12 | ML | High
+Energy Consumption | 8151.31 | 9560.46 | 8322.98 | 7796.24 | 7746.67 | Mt | Medium
+Water Consumption | 8173.75 | 7011.05 | 6590.96 | 8406.37 | 7267.95 | m3 | High
+Coal Recovery | 1680.67 | 1685.02 | 2002.1 | 1950.88 | 1821.95 | % | Medium
+Exploration Area | 10426.94 | 7872.57 | 10005.7 | 9888.37 | 9453.04 | Mt | Medium
+Net Geological Reserves | 1796.02 | 1712.18 | 1616.23 | 2061.49 | 2060.0 | ha | Medium
+
+=== Page 3-3 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 3
+Regional Production Statistics
+Regional Production Statistics — Table Group 1
+Regional Production Statistics presents synthetic operational and geological observations for reporting year 2024. The dataset is
+intentionally structured to resemble a technical mining report and contains repeated cross-references between mine-level production,
+exploration activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Net Geological Reserves
+3764.59
+3800.95
+3779.96
+3076.57
+3724.15
+m
+High
+Dispatch
+5946.95
+7302.27
+6811.73
+5842.88
+6059.31
+t
+High
+Coal Recovery
+647.26
+570.62
+507.06
+667.77
+602.12
+ML
+High
+Energy Consumption
+8151.31
+9560.46
+8322.98
+7796.24
+7746.67
+Mt
+Medium
+Water Consumption
+8173.75
+7011.05
+6590.96
+8406.37
+7267.95
+m3
+High
+Coal Recovery
+1680.67
+1685.02
+2002.1
+1950.88
+1821.95
+%
+Medium
+Exploration Area
+10426.94
+7872.57
+10005.7
+9888.37
+9453.04
+Mt
+Medium
+Net Geological Reserves
+1796.02
+1712.18
+1616.23
+2061.49
+2060.0
+ha
+Medium
+
+=== Page 4-4 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 4
+Mine-wise Production
+Mine-wise Production — Table Group 1
+Mine-wise Production presents synthetic operational and geological observations for reporting year 2025. The dataset is intentionally
+structured to resemble a technical mining report and contains repeated cross-references between mine-level production, exploration
+activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Project Progress
+2057.06
+1718.57
+1920.04
+1902.3
+1632.41
+ha
+Medium
+Boreholes Completed
+10164.36
+9242.82
+8924.62
+7838.15
+8562.33
+Mt
+High
+Coal Production
+4594.37
+4685.28
+3549.51
+4077.43
+3527.83
+ha
+High
+Energy Consumption
+9188.57
+7166.87
+8104.5
+8308.6
+9233.86
+m
+Medium
+Exploration Area
+7827.99
+7077.47
+6617.12
+6789.88
+5927.85
+m
+High
+Net Geological Reserves
+415.33
+368.76
+367.47
+348.07
+420.9
+m
+High
+Key Indicators
+Indicator
+Value
+Unit
+Period
+Source Context
+Annual production
+1,714
+kt
+2025-26
+Mine-wise Production, Table 5
+Exploration coverage
+91.96
+%
+2025-26
+Mine-wise Production, Table 5
+Average productivity
+1.67
+t/man-shift
+2025-26
+Mine-wise Production, Table 5
+Recovery factor
+68.85
+%
+2025-26
+Mine-wise Production, Table 5
+
+=== Page 4-4 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Project Progress | 2057.06 | 1718.57 | 1920.04 | 1902.3 | 1632.41 | ha | Medium
+Boreholes Completed | 10164.36 | 9242.82 | 8924.62 | 7838.15 | 8562.33 | Mt | High
+Coal Production | 4594.37 | 4685.28 | 3549.51 | 4077.43 | 3527.83 | ha | High
+Energy Consumption | 9188.57 | 7166.87 | 8104.5 | 8308.6 | 9233.86 | m | Medium
+Exploration Area | 7827.99 | 7077.47 | 6617.12 | 6789.88 | 5927.85 | m | High
+Net Geological Reserves | 415.33 | 368.76 | 367.47 | 348.07 | 420.9 | m | High
+
+=== Page 4-4 ===
+Indicator | Value | Unit | Period | Source Context
+----------------------------------------
+Annual production | 1,714 | kt | 2025-26 | Mine-wise Production, Table 5
+Exploration coverage | 91.96 | % | 2025-26 | Mine-wise Production, Table 5
+Average productivity | 1.67 | t/man-shift | 2025-26 | Mine-wise Production, Table 5
+Recovery factor | 68.85 | % | 2025-26 | Mine-wise Production, Table 5
+
+=== Page 5-5 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 5
+Geological Exploration
+Geological Exploration — Table Group 1
+Geological Exploration presents synthetic operational and geological observations for reporting year 2026. The dataset is
+intentionally structured to resemble a technical mining report and contains repeated cross-references between mine-level production,
+exploration activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Energy Consumption
+7448.38
+7232.01
+9353.26
+8390.7
+8130.9
+%
+High
+Drilling Meterage
+1422.72
+1598.58
+1594.65
+1617.52
+1755.45
+m3
+High
+Grade Quality
+6305.61
+5025.99
+5178.37
+5816.39
+5083.21
+ha
+High
+Dispatch
+4757.42
+3665.16
+4666.57
+4732.11
+3695.95
+t
+High
+Project Progress
+3588.17
+4001.47
+3649.56
+3891.97
+3448.81
+GWh
+High
+Grade Quality
+5123.48
+4918.41
+4193.41
+4790.0
+4839.19
+%
+High
+Interpretation Notes
+Trend comparisons should be interpreted using the stated period, unit and mine/subsidiary scope. Where multiple tables report the
+same metric, page and section context should be retained when constructing retrieval citations. Some values are deliberately
+repeated or slightly transformed across sections to test retrieval disambiguation and claim validation.
+
+=== Page 5-5 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Energy Consumption | 7448.38 | 7232.01 | 9353.26 | 8390.7 | 8130.9 | % | High
+Drilling Meterage | 1422.72 | 1598.58 | 1594.65 | 1617.52 | 1755.45 | m3 | High
+Grade Quality | 6305.61 | 5025.99 | 5178.37 | 5816.39 | 5083.21 | ha | High
+Dispatch | 4757.42 | 3665.16 | 4666.57 | 4732.11 | 3695.95 | t | High
+Project Progress | 3588.17 | 4001.47 | 3649.56 | 3891.97 | 3448.81 | GWh | High
+Grade Quality | 5123.48 | 4918.41 | 4193.41 | 4790.0 | 4839.19 | % | High
+
+=== Page 6-6 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Drilling Meterage | 4576.27 | 4318.24 | 5415.82 | 4322.25 | 4731.7 | t | Medium
+Dispatch | 9642.24 | 8580.33 | 7283.25 | 8516.61 | 9456.14 | m3 | Medium
+Overburden Removal | 3876.64 | 4569.35 | 4090.32 | 4102.22 | 3407.77 | m3 | High
+Energy Consumption | 9612.75 | 10878.3 | 8634.15 | 10206.96 | 8739.91 | GWh | High
+Energy Consumption | 5019.04 | 5792.05 | 5803.05 | 4285.16 | 5287.64 | m3 | High
+Reclamation Area | 3637.43 | 3200.94 | 3454.06 | 3126.53 | 3331.65 | Mt | High
+Dispatch | 9774.91 | 9503.59 | 10612.79 | 9628.52 | 7720.11 | Mt | Medium
+Overburden Removal | 2131.37 | 2595.61 | 2486.24 | 2050.42 | 2144.2 | m | Medium
+
+=== Page 6-6 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 6
+Drilling & Borehole Statistics
+Drilling & Borehole Statistics — Table Group 1
+Drilling & Borehole Statistics presents synthetic operational and geological observations for reporting year 2021. The dataset is
+intentionally structured to resemble a technical mining report and contains repeated cross-references between mine-level production,
+exploration activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Drilling Meterage
+4576.27
+4318.24
+5415.82
+4322.25
+4731.7
+t
+Medium
+Dispatch
+9642.24
+8580.33
+7283.25
+8516.61
+9456.14
+m3
+Medium
+Overburden Removal
+3876.64
+4569.35
+4090.32
+4102.22
+3407.77
+m3
+High
+Energy Consumption
+9612.75
+10878.3
+8634.15
+10206.96
+8739.91
+GWh
+High
+Energy Consumption
+5019.04
+5792.05
+5803.05
+4285.16
+5287.64
+m3
+High
+Reclamation Area
+3637.43
+3200.94
+3454.06
+3126.53
+3331.65
+Mt
+High
+Dispatch
+9774.91
+9503.59
+10612.79
+9628.52
+7720.11
+Mt
+Medium
+Overburden Removal
+2131.37
+2595.61
+2486.24
+2050.42
+2144.2
+m
+Medium
+Key Indicators
+Indicator
+Value
+Unit
+Period
+Source Context
+Annual production
+6,817
+kt
+2025-26
+Drilling & Borehole Statistics, Table 7
+Exploration coverage
+63.75
+%
+2025-26
+Drilling & Borehole Statistics, Table 7
+Average productivity
+5.39
+t/man-shift
+2025-26
+Drilling & Borehole Statistics, Table 7
+Recovery factor
+69.71
+%
+2025-26
+Drilling & Borehole Statistics, Table 7
+
+=== Page 6-6 ===
+Indicator | Value | Unit | Period | Source Context
+----------------------------------------
+Annual production | 6,817 | kt | 2025-26 | Drilling & Borehole Statistics, Table 7
+Exploration coverage | 63.75 | % | 2025-26 | Drilling & Borehole Statistics, Table 7
+Average productivity | 5.39 | t/man-shift | 2025-26 | Drilling & Borehole Statistics, Table 7
+Recovery factor | 69.71 | % | 2025-26 | Drilling & Borehole Statistics, Table 7
+
+=== Page 7-7 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 7
+Reserve & Resource Estimation
+Reserve & Resource Estimation — Table Group 1
+Reserve & Resource Estimation presents synthetic operational and geological observations for reporting year 2022. The dataset is
+intentionally structured to resemble a technical mining report and contains repeated cross-references between mine-level production,
+exploration activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Dispatch
+4825.08
+4743.69
+3707.87
+4163.08
+3961.23
+t
+High
+Boreholes Completed
+2347.05
+2075.55
+2422.4
+2285.23
+2195.49
+t
+High
+Overburden Removal
+2591.79
+2829.46
+2622.15
+2264.91
+2247.93
+Mt
+High
+Project Progress
+813.12
+653.32
+662.47
+628.43
+785.56
+GWh
+Medium
+Safety Incidents
+3009.33
+2422.23
+2358.98
+2902.07
+2371.38
+GWh
+High
+Manpower
+6141.09
+5469.29
+5937.23
+6055.31
+5172.89
+ha
+Medium
+
+=== Page 7-7 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Dispatch | 4825.08 | 4743.69 | 3707.87 | 4163.08 | 3961.23 | t | High
+Boreholes Completed | 2347.05 | 2075.55 | 2422.4 | 2285.23 | 2195.49 | t | High
+Overburden Removal | 2591.79 | 2829.46 | 2622.15 | 2264.91 | 2247.93 | Mt | High
+Project Progress | 813.12 | 653.32 | 662.47 | 628.43 | 785.56 | GWh | Medium
+Safety Incidents | 3009.33 | 2422.23 | 2358.98 | 2902.07 | 2371.38 | GWh | High
+Manpower | 6141.09 | 5469.29 | 5937.23 | 6055.31 | 5172.89 | ha | Medium
+
+=== Page 8-8 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Overburden Removal | 7250.75 | 7222.45 | 5896.31 | 7134.88 | 6392.17 | Mt | High
+Drilling Meterage | 471.0 | 433.28 | 416.0 | 385.83 | 487.34 | ML | Medium
+Reclamation Area | 7153.82 | 7511.22 | 6395.31 | 5734.38 | 7583.89 | Mt | High
+Water Consumption | 3838.68 | 4649.16 | 4284.96 | 4924.77 | 4416.64 | m3 | High
+Project Progress | 8762.21 | 8305.65 | 9533.02 | 9795.82 | 10693.91 | m | High
+Grade Quality | 1403.06 | 1391.97 | 1274.51 | 1290.39 | 1077.75 | Mt | Medium
+
+=== Page 8-8 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 8
+Coal Quality & Grade Analysis
+Coal Quality & Grade Analysis — Table Group 1
+Coal Quality & Grade Analysis presents synthetic operational and geological observations for reporting year 2023. The dataset is
+intentionally structured to resemble a technical mining report and contains repeated cross-references between mine-level production,
+exploration activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Overburden Removal
+7250.75
+7222.45
+5896.31
+7134.88
+6392.17
+Mt
+High
+Drilling Meterage
+471.0
+433.28
+416.0
+385.83
+487.34
+ML
+Medium
+Reclamation Area
+7153.82
+7511.22
+6395.31
+5734.38
+7583.89
+Mt
+High
+Water Consumption
+3838.68
+4649.16
+4284.96
+4924.77
+4416.64
+m3
+High
+Project Progress
+8762.21
+8305.65
+9533.02
+9795.82
+10693.91
+m
+High
+Grade Quality
+1403.06
+1391.97
+1274.51
+1290.39
+1077.75
+Mt
+Medium
+Key Indicators
+Indicator
+Value
+Unit
+Period
+Source Context
+Annual production
+6,267
+kt
+2025-26
+Coal Quality & Grade Analysis, Table 2
+Exploration coverage
+83.68
+%
+2025-26
+Coal Quality & Grade Analysis, Table 2
+Average productivity
+3.35
+t/man-shift
+2025-26
+Coal Quality & Grade Analysis, Table 2
+Recovery factor
+84.01
+%
+2025-26
+Coal Quality & Grade Analysis, Table 2
+
+=== Page 8-8 ===
+Indicator | Value | Unit | Period | Source Context
+----------------------------------------
+Annual production | 6,267 | kt | 2025-26 | Coal Quality & Grade Analysis, Table 2
+Exploration coverage | 83.68 | % | 2025-26 | Coal Quality & Grade Analysis, Table 2
+Average productivity | 3.35 | t/man-shift | 2025-26 | Coal Quality & Grade Analysis, Table 2
+Recovery factor | 84.01 | % | 2025-26 | Coal Quality & Grade Analysis, Table 2
+
+=== Page 9-9 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Reclamation Area | 1971.26 | 2304.58 | 2103.23 | 2363.2 | 1958.71 | Mt | High
+Reclamation Area | 53.78 | 52.04 | 62.68 | 59.37 | 54.12 | % | High
+Energy Consumption | 3652.87 | 3983.98 | 4178.62 | 3916.28 | 3825.92 | Mt | Medium
+Energy Consumption | 4936.02 | 6506.02 | 5194.72 | 5332.87 | 6240.08 | ha | High
+Coal Production | 4811.06 | 4311.65 | 4522.34 | 4102.78 | 4680.0 | m | Medium
+Safety Incidents | 6487.76 | 5963.8 | 6826.08 | 5464.86 | 7024.68 | m3 | High
+Drilling Meterage | 3298.42 | 3193.77 | 2969.99 | 3059.8 | 3408.06 | m3 | High
+Manpower | 8277.26 | 9087.17 | 8094.9 | 8991.46 | 8843.25 | GWh | Medium
+
+=== Page 9-9 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 9
+Overburden & Stripping Ratio
+Overburden & Stripping Ratio — Table Group 1
+Overburden & Stripping Ratio presents synthetic operational and geological observations for reporting year 2024. The dataset is
+intentionally structured to resemble a technical mining report and contains repeated cross-references between mine-level production,
+exploration activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Reclamation Area
+1971.26
+2304.58
+2103.23
+2363.2
+1958.71
+Mt
+High
+Reclamation Area
+53.78
+52.04
+62.68
+59.37
+54.12
+%
+High
+Energy Consumption
+3652.87
+3983.98
+4178.62
+3916.28
+3825.92
+Mt
+Medium
+Energy Consumption
+4936.02
+6506.02
+5194.72
+5332.87
+6240.08
+ha
+High
+Coal Production
+4811.06
+4311.65
+4522.34
+4102.78
+4680.0
+m
+Medium
+Safety Incidents
+6487.76
+5963.8
+6826.08
+5464.86
+7024.68
+m3
+High
+Drilling Meterage
+3298.42
+3193.77
+2969.99
+3059.8
+3408.06
+m3
+High
+Manpower
+8277.26
+9087.17
+8094.9
+8991.46
+8843.25
+GWh
+Medium
+
+=== Page 10-10 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Dispatch | 2937.06 | 2701.22 | 2512.28 | 2501.8 | 2844.13 | % | Medium
+Drilling Meterage | 4572.46 | 4983.29 | 4264.15 | 4416.3 | 5252.73 | m3 | High
+Manpower | 3785.81 | 3494.21 | 3571.66 | 3826.13 | 3719.75 | % | High
+Coal Production | 3901.63 | 3398.56 | 3830.04 | 4030.03 | 2978.84 | GWh | High
+Coal Production | 5572.01 | 5747.29 | 6709.61 | 6602.35 | 6031.64 | m | High
+Drilling Meterage | 4538.3 | 3931.36 | 4389.54 | 4901.29 | 4491.27 | ha | High
+
+=== Page 10-10 ===
+Indicator | Value | Unit | Period | Source Context
+----------------------------------------
+Annual production | 3,291 | kt | 2025-26 | Dispatch & Logistics, Table 4
+Exploration coverage | 97.17 | % | 2025-26 | Dispatch & Logistics, Table 4
+Average productivity | 4.73 | t/man-shift | 2025-26 | Dispatch & Logistics, Table 4
+Recovery factor | 90.93 | % | 2025-26 | Dispatch & Logistics, Table 4
+
+=== Page 10-10 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 10
+Dispatch & Logistics
+Dispatch & Logistics — Table Group 1
+Dispatch & Logistics presents synthetic operational and geological observations for reporting year 2025. The dataset is intentionally
+structured to resemble a technical mining report and contains repeated cross-references between mine-level production, exploration
+activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Dispatch
+2937.06
+2701.22
+2512.28
+2501.8
+2844.13
+%
+Medium
+Drilling Meterage
+4572.46
+4983.29
+4264.15
+4416.3
+5252.73
+m3
+High
+Manpower
+3785.81
+3494.21
+3571.66
+3826.13
+3719.75
+%
+High
+Coal Production
+3901.63
+3398.56
+3830.04
+4030.03
+2978.84
+GWh
+High
+Coal Production
+5572.01
+5747.29
+6709.61
+6602.35
+6031.64
+m
+High
+Drilling Meterage
+4538.3
+3931.36
+4389.54
+4901.29
+4491.27
+ha
+High
+Key Indicators
+Indicator
+Value
+Unit
+Period
+Source Context
+Annual production
+3,291
+kt
+2025-26
+Dispatch & Logistics, Table 4
+Exploration coverage
+97.17
+%
+2025-26
+Dispatch & Logistics, Table 4
+Average productivity
+4.73
+t/man-shift
+2025-26
+Dispatch & Logistics, Table 4
+Recovery factor
+90.93
+%
+2025-26
+Dispatch & Logistics, Table 4
+Interpretation Notes
+Trend comparisons should be interpreted using the stated period, unit and mine/subsidiary scope. Where multiple tables report the
+same metric, page and section context should be retained when constructing retrieval citations. Some values are deliberately
+repeated or slightly transformed across sections to test retrieval disambiguation and claim validation.
+
+=== Page 11-11 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 11
+Land Reclamation
+Land Reclamation — Table Group 1
+Land Reclamation presents synthetic operational and geological observations for reporting year 2026. The dataset is intentionally
+structured to resemble a technical mining report and contains repeated cross-references between mine-level production, exploration
+activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Water Consumption
+10028.43
+8252.08
+9309.41
+10653.78
+8552.05
+Mt
+High
+Net Geological Reserves
+3552.35
+3416.33
+4045.54
+3347.57
+4128.6
+GWh
+High
+Coal Recovery
+1412.14
+1540.08
+1220.17
+1633.22
+1299.18
+m3
+Medium
+Coal Production
+654.74
+516.59
+483.63
+507.94
+503.12
+m3
+Medium
+Drilling Meterage
+8365.52
+8536.18
+7019.98
+8132.14
+8488.17
+m3
+High
+Exploration Area
+1913.81
+2124.26
+1912.07
+2111.72
+1791.59
+m
+High
+
+=== Page 11-11 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Water Consumption | 10028.43 | 8252.08 | 9309.41 | 10653.78 | 8552.05 | Mt | High
+Net Geological Reserves | 3552.35 | 3416.33 | 4045.54 | 3347.57 | 4128.6 | GWh | High
+Coal Recovery | 1412.14 | 1540.08 | 1220.17 | 1633.22 | 1299.18 | m3 | Medium
+Coal Production | 654.74 | 516.59 | 483.63 | 507.94 | 503.12 | m3 | Medium
+Drilling Meterage | 8365.52 | 8536.18 | 7019.98 | 8132.14 | 8488.17 | m3 | High
+Exploration Area | 1913.81 | 2124.26 | 1912.07 | 2111.72 | 1791.59 | m | High
+
+=== Page 12-12 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Water Consumption | 3599.53 | 4490.89 | 4594.32 | 4262.17 | 3624.99 | t | High
+Reclamation Area | 7621.44 | 6239.32 | 7588.84 | 6107.99 | 7058.24 | % | High
+Grade Quality | 6401.34 | 6782.7 | 6542.98 | 6006.21 | 6595.28 | Mt | Medium
+Boreholes Completed | 9892.31 | 8985.89 | 10041.81 | 9359.27 | 8568.72 | m | High
+Exploration Area | 6992.43 | 7534.29 | 7891.58 | 7323.97 | 6464.52 | ML | High
+Dispatch | 3444.25 | 3332.03 | 3356.81 | 3724.98 | 4055.28 | t | Medium
+Drilling Meterage | 1364.37 | 1443.46 | 1514.74 | 1363.87 | 1476.84 | % | High
+Boreholes Completed | 295.71 | 309.8 | 361.31 | 319.07 | 349.24 | % | Medium
+
+=== Page 12-12 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 12
+Water Management
+Water Management — Table Group 1
+Water Management presents synthetic operational and geological observations for reporting year 2021. The dataset is intentionally
+structured to resemble a technical mining report and contains repeated cross-references between mine-level production, exploration
+activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Water Consumption
+3599.53
+4490.89
+4594.32
+4262.17
+3624.99
+t
+High
+Reclamation Area
+7621.44
+6239.32
+7588.84
+6107.99
+7058.24
+%
+High
+Grade Quality
+6401.34
+6782.7
+6542.98
+6006.21
+6595.28
+Mt
+Medium
+Boreholes Completed
+9892.31
+8985.89
+10041.81
+9359.27
+8568.72
+m
+High
+Exploration Area
+6992.43
+7534.29
+7891.58
+7323.97
+6464.52
+ML
+High
+Dispatch
+3444.25
+3332.03
+3356.81
+3724.98
+4055.28
+t
+Medium
+Drilling Meterage
+1364.37
+1443.46
+1514.74
+1363.87
+1476.84
+%
+High
+Boreholes Completed
+295.71
+309.8
+361.31
+319.07
+349.24
+%
+Medium
+Key Indicators
+Indicator
+Value
+Unit
+Period
+Source Context
+Annual production
+6,832
+kt
+2025-26
+Water Management, Table 6
+Exploration coverage
+73.30
+%
+2025-26
+Water Management, Table 6
+Average productivity
+6.12
+t/man-shift
+2025-26
+Water Management, Table 6
+Recovery factor
+71.92
+%
+2025-26
+Water Management, Table 6
+
+=== Page 12-12 ===
+Indicator | Value | Unit | Period | Source Context
+----------------------------------------
+Annual production | 6,832 | kt | 2025-26 | Water Management, Table 6
+Exploration coverage | 73.30 | % | 2025-26 | Water Management, Table 6
+Average productivity | 6.12 | t/man-shift | 2025-26 | Water Management, Table 6
+Recovery factor | 71.92 | % | 2025-26 | Water Management, Table 6
+
+=== Page 13-13 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 13
+Energy Consumption
+Energy Consumption — Table Group 1
+Energy Consumption presents synthetic operational and geological observations for reporting year 2022. The dataset is intentionally
+structured to resemble a technical mining report and contains repeated cross-references between mine-level production, exploration
+activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Safety Incidents
+7105.33
+7057.14
+6734.23
+6911.87
+6731.51
+ha
+High
+Drilling Meterage
+7593.79
+8418.58
+8868.06
+8437.56
+9448.43
+m
+High
+Drilling Meterage
+5480.36
+5155.16
+6178.21
+5667.02
+7044.21
+Mt
+Medium
+Manpower
+7233.07
+6991.87
+7718.41
+8237.46
+7868.93
+t
+High
+Coal Recovery
+7070.78
+6944.07
+8052.47
+8274.13
+8558.59
+ha
+High
+Boreholes Completed
+10876.84
+8233.67
+8732.38
+9680.45
+9246.32
+m
+Medium
+
+=== Page 13-13 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Safety Incidents | 7105.33 | 7057.14 | 6734.23 | 6911.87 | 6731.51 | ha | High
+Drilling Meterage | 7593.79 | 8418.58 | 8868.06 | 8437.56 | 9448.43 | m | High
+Drilling Meterage | 5480.36 | 5155.16 | 6178.21 | 5667.02 | 7044.21 | Mt | Medium
+Manpower | 7233.07 | 6991.87 | 7718.41 | 8237.46 | 7868.93 | t | High
+Coal Recovery | 7070.78 | 6944.07 | 8052.47 | 8274.13 | 8558.59 | ha | High
+Boreholes Completed | 10876.84 | 8233.67 | 8732.38 | 9680.45 | 9246.32 | m | Medium
+
+=== Page 14-14 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 14
+Environmental Monitoring
+Environmental Monitoring — Table Group 1
+Environmental Monitoring presents synthetic operational and geological observations for reporting year 2023. The dataset is
+intentionally structured to resemble a technical mining report and contains repeated cross-references between mine-level production,
+exploration activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Grade Quality
+8618.52
+7119.84
+7833.86
+7442.25
+7785.07
+t
+Medium
+Safety Incidents
+1964.28
+1555.35
+1557.14
+1805.55
+1527.31
+ha
+Medium
+Overburden Removal
+2250.35
+2636.65
+2760.27
+2499.29
+2447.72
+Mt
+Medium
+Coal Recovery
+6615.57
+7016.48
+7093.41
+8394.88
+7897.07
+m
+High
+Overburden Removal
+8381.53
+8157.04
+8502.39
+8137.05
+7892.49
+Mt
+Medium
+Safety Incidents
+10912.44
+9421.13
+9512.53
+9003.28
+9307.76
+Mt
+Medium
+Key Indicators
+Indicator
+Value
+Unit
+Period
+Source Context
+Annual production
+9,290
+kt
+2025-26
+Environmental Monitoring, Table 1
+Exploration coverage
+73.82
+%
+2025-26
+Environmental Monitoring, Table 1
+Average productivity
+5.15
+t/man-shift
+2025-26
+Environmental Monitoring, Table 1
+Recovery factor
+90.35
+%
+2025-26
+Environmental Monitoring, Table 1
+
+=== Page 14-14 ===
+Indicator | Value | Unit | Period | Source Context
+----------------------------------------
+Annual production | 9,290 | kt | 2025-26 | Environmental Monitoring, Table 1
+Exploration coverage | 73.82 | % | 2025-26 | Environmental Monitoring, Table 1
+Average productivity | 5.15 | t/man-shift | 2025-26 | Environmental Monitoring, Table 1
+Recovery factor | 90.35 | % | 2025-26 | Environmental Monitoring, Table 1
+
+=== Page 14-14 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Grade Quality | 8618.52 | 7119.84 | 7833.86 | 7442.25 | 7785.07 | t | Medium
+Safety Incidents | 1964.28 | 1555.35 | 1557.14 | 1805.55 | 1527.31 | ha | Medium
+Overburden Removal | 2250.35 | 2636.65 | 2760.27 | 2499.29 | 2447.72 | Mt | Medium
+Coal Recovery | 6615.57 | 7016.48 | 7093.41 | 8394.88 | 7897.07 | m | High
+Overburden Removal | 8381.53 | 8157.04 | 8502.39 | 8137.05 | 7892.49 | Mt | Medium
+Safety Incidents | 10912.44 | 9421.13 | 9512.53 | 9003.28 | 9307.76 | Mt | Medium
+
+=== Page 15-15 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 15
+Mine Safety Statistics
+Mine Safety Statistics — Table Group 1
+Mine Safety Statistics presents synthetic operational and geological observations for reporting year 2024. The dataset is intentionally
+structured to resemble a technical mining report and contains repeated cross-references between mine-level production, exploration
+activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Safety Incidents
+5645.67
+4629.29
+4986.46
+5769.82
+6097.36
+t
+Medium
+Coal Recovery
+4688.97
+4964.3
+4098.03
+4604.57
+4491.5
+Mt
+High
+Water Consumption
+7690.62
+7351.14
+6400.78
+7009.98
+6975.21
+m3
+High
+Net Geological Reserves
+7398.07
+6489.03
+7961.98
+7666.87
+7076.17
+%
+High
+Net Geological Reserves
+4045.56
+4938.97
+4157.29
+4309.78
+4963.74
+%
+High
+Coal Production
+3220.08
+3327.46
+3199.52
+3141.34
+2738.97
+Mt
+Medium
+Manpower
+4790.83
+5200.22
+4292.44
+5632.85
+5059.56
+m
+Medium
+Manpower
+5355.77
+5358.17
+4579.39
+6104.65
+5970.07
+%
+High
+Interpretation Notes
+Trend comparisons should be interpreted using the stated period, unit and mine/subsidiary scope. Where multiple tables report the
+same metric, page and section context should be retained when constructing retrieval citations. Some values are deliberately
+repeated or slightly transformed across sections to test retrieval disambiguation and claim validation.
+
+=== Page 15-15 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Safety Incidents | 5645.67 | 4629.29 | 4986.46 | 5769.82 | 6097.36 | t | Medium
+Coal Recovery | 4688.97 | 4964.3 | 4098.03 | 4604.57 | 4491.5 | Mt | High
+Water Consumption | 7690.62 | 7351.14 | 6400.78 | 7009.98 | 6975.21 | m3 | High
+Net Geological Reserves | 7398.07 | 6489.03 | 7961.98 | 7666.87 | 7076.17 | % | High
+Net Geological Reserves | 4045.56 | 4938.97 | 4157.29 | 4309.78 | 4963.74 | % | High
+Coal Production | 3220.08 | 3327.46 | 3199.52 | 3141.34 | 2738.97 | Mt | Medium
+Manpower | 4790.83 | 5200.22 | 4292.44 | 5632.85 | 5059.56 | m | Medium
+Manpower | 5355.77 | 5358.17 | 4579.39 | 6104.65 | 5970.07 | % | High
+
+=== Page 16-16 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 16
+Manpower & Productivity
+Manpower & Productivity — Table Group 1
+Manpower & Productivity presents synthetic operational and geological observations for reporting year 2025. The dataset is
+intentionally structured to resemble a technical mining report and contains repeated cross-references between mine-level production,
+exploration activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Energy Consumption
+2634.92
+2820.14
+2643.83
+2443.99
+2920.4
+%
+High
+Dispatch
+8243.11
+8380.87
+9605.83
+10046.1
+8218.74
+m3
+High
+Boreholes Completed
+6657.34
+7669.4
+6493.05
+5895.08
+7530.04
+%
+High
+Dispatch
+9050.0
+8605.16
+9865.65
+8736.27
+10363.42
+m
+Medium
+Drilling Meterage
+9289.73
+10759.92
+9376.14
+9088.35
+9569.46
+GWh
+High
+Energy Consumption
+2601.63
+2217.17
+2607.47
+2681.2
+2915.68
+%
+High
+Key Indicators
+Indicator
+Value
+Unit
+Period
+Source Context
+Annual production
+8,686
+kt
+2025-26
+Manpower & Productivity, Table 3
+Exploration coverage
+55.66
+%
+2025-26
+Manpower & Productivity, Table 3
+Average productivity
+2.15
+t/man-shift
+2025-26
+Manpower & Productivity, Table 3
+Recovery factor
+89.74
+%
+2025-26
+Manpower & Productivity, Table 3
+
+=== Page 16-16 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Energy Consumption | 2634.92 | 2820.14 | 2643.83 | 2443.99 | 2920.4 | % | High
+Dispatch | 8243.11 | 8380.87 | 9605.83 | 10046.1 | 8218.74 | m3 | High
+Boreholes Completed | 6657.34 | 7669.4 | 6493.05 | 5895.08 | 7530.04 | % | High
+Dispatch | 9050.0 | 8605.16 | 9865.65 | 8736.27 | 10363.42 | m | Medium
+Drilling Meterage | 9289.73 | 10759.92 | 9376.14 | 9088.35 | 9569.46 | GWh | High
+Energy Consumption | 2601.63 | 2217.17 | 2607.47 | 2681.2 | 2915.68 | % | High
+
+=== Page 16-16 ===
+Indicator | Value | Unit | Period | Source Context
+----------------------------------------
+Annual production | 8,686 | kt | 2025-26 | Manpower & Productivity, Table 3
+Exploration coverage | 55.66 | % | 2025-26 | Manpower & Productivity, Table 3
+Average productivity | 2.15 | t/man-shift | 2025-26 | Manpower & Productivity, Table 3
+Recovery factor | 89.74 | % | 2025-26 | Manpower & Productivity, Table 3
+
+=== Page 17-17 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Manpower | 1294.04 | 1504.29 | 1238.95 | 1387.96 | 1369.92 | ML | Medium
+Coal Recovery | 8663.66 | 8479.87 | 9646.38 | 9764.42 | 10092.22 | t | Medium
+Overburden Removal | 4162.03 | 4534.58 | 4632.93 | 4310.66 | 3908.51 | m3 | Medium
+Safety Incidents | 1706.88 | 1846.98 | 1964.19 | 1484.3 | 1904.15 | Mt | High
+Net Geological Reserves | 6452.52 | 7356.73 | 7438.25 | 7969.6 | 6509.77 | m3 | Medium
+Coal Recovery | 6724.47 | 5934.66 | 7335.51 | 5730.96 | 6393.94 | Mt | High
+
+=== Page 17-17 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 17
+Project Progress
+Project Progress — Table Group 1
+Project Progress presents synthetic operational and geological observations for reporting year 2026. The dataset is intentionally
+structured to resemble a technical mining report and contains repeated cross-references between mine-level production, exploration
+activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Manpower
+1294.04
+1504.29
+1238.95
+1387.96
+1369.92
+ML
+Medium
+Coal Recovery
+8663.66
+8479.87
+9646.38
+9764.42
+10092.22
+t
+Medium
+Overburden Removal
+4162.03
+4534.58
+4632.93
+4310.66
+3908.51
+m3
+Medium
+Safety Incidents
+1706.88
+1846.98
+1964.19
+1484.3
+1904.15
+Mt
+High
+Net Geological Reserves
+6452.52
+7356.73
+7438.25
+7969.6
+6509.77
+m3
+Medium
+Coal Recovery
+6724.47
+5934.66
+7335.51
+5730.96
+6393.94
+Mt
+High
+
+=== Page 18-18 ===
+Indicator | Value | Unit | Period | Source Context
+----------------------------------------
+Annual production | 4,896 | kt | 2025-26 | Subsidiary Comparison, Table 5
+Exploration coverage | 91.99 | % | 2025-26 | Subsidiary Comparison, Table 5
+Average productivity | 5.98 | t/man-shift | 2025-26 | Subsidiary Comparison, Table 5
+Recovery factor | 93.34 | % | 2025-26 | Subsidiary Comparison, Table 5
+
+=== Page 18-18 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 18
+Subsidiary Comparison
+Subsidiary Comparison — Table Group 1
+Subsidiary Comparison presents synthetic operational and geological observations for reporting year 2021. The dataset is
+intentionally structured to resemble a technical mining report and contains repeated cross-references between mine-level production,
+exploration activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Exploration Area
+234.8
+205.75
+193.85
+211.2
+179.53
+ML
+Medium
+Exploration Area
+7615.71
+7076.3
+6718.86
+8329.74
+7992.35
+m3
+High
+Grade Quality
+9217.06
+9020.95
+10274.98
+8169.4
+10681.45
+GWh
+High
+Coal Production
+10678.09
+10411.21
+11011.98
+10818.21
+10309.26
+Mt
+High
+Water Consumption
+5427.68
+5372.21
+5488.44
+6458.58
+6481.43
+ha
+Medium
+Overburden Removal
+668.55
+698.8
+730.63
+765.67
+618.37
+Mt
+High
+Safety Incidents
+6294.46
+6196.07
+7117.6
+8095.32
+7098.24
+Mt
+High
+Exploration Area
+9367.86
+7605.56
+9113.6
+8940.15
+8059.58
+m3
+High
+Key Indicators
+Indicator
+Value
+Unit
+Period
+Source Context
+Annual production
+4,896
+kt
+2025-26
+Subsidiary Comparison, Table 5
+Exploration coverage
+91.99
+%
+2025-26
+Subsidiary Comparison, Table 5
+Average productivity
+5.98
+t/man-shift
+2025-26
+Subsidiary Comparison, Table 5
+Recovery factor
+93.34
+%
+2025-26
+Subsidiary Comparison, Table 5
+
+=== Page 18-18 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Exploration Area | 234.8 | 205.75 | 193.85 | 211.2 | 179.53 | ML | Medium
+Exploration Area | 7615.71 | 7076.3 | 6718.86 | 8329.74 | 7992.35 | m3 | High
+Grade Quality | 9217.06 | 9020.95 | 10274.98 | 8169.4 | 10681.45 | GWh | High
+Coal Production | 10678.09 | 10411.21 | 11011.98 | 10818.21 | 10309.26 | Mt | High
+Water Consumption | 5427.68 | 5372.21 | 5488.44 | 6458.58 | 6481.43 | ha | Medium
+Overburden Removal | 668.55 | 698.8 | 730.63 | 765.67 | 618.37 | Mt | High
+Safety Incidents | 6294.46 | 6196.07 | 7117.6 | 8095.32 | 7098.24 | Mt | High
+Exploration Area | 9367.86 | 7605.56 | 9113.6 | 8940.15 | 8059.58 | m3 | High
+
+=== Page 19-19 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 19
+Five-Year Trends
+Five-Year Trends — Table Group 1
+Five-Year Trends presents synthetic operational and geological observations for reporting year 2022. The dataset is intentionally
+structured to resemble a technical mining report and contains repeated cross-references between mine-level production, exploration
+activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Coal Recovery
+9003.86
+10291.21
+7937.83
+9521.33
+9273.54
+Mt
+Medium
+Grade Quality
+5496.35
+5750.42
+5327.63
+7067.43
+6413.74
+m
+Medium
+Overburden Removal
+8881.71
+7347.64
+7615.71
+6937.3
+8974.87
+Mt
+High
+Overburden Removal
+1539.35
+1703.4
+1622.71
+1613.16
+1926.55
+GWh
+Medium
+Safety Incidents
+2973.79
+2777.48
+2929.74
+2744.03
+3019.48
+Mt
+High
+Safety Incidents
+5702.0
+6161.31
+5740.05
+5995.68
+7244.28
+ML
+Medium
+
+=== Page 19-19 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Coal Recovery | 9003.86 | 10291.21 | 7937.83 | 9521.33 | 9273.54 | Mt | Medium
+Grade Quality | 5496.35 | 5750.42 | 5327.63 | 7067.43 | 6413.74 | m | Medium
+Overburden Removal | 8881.71 | 7347.64 | 7615.71 | 6937.3 | 8974.87 | Mt | High
+Overburden Removal | 1539.35 | 1703.4 | 1622.71 | 1613.16 | 1926.55 | GWh | Medium
+Safety Incidents | 2973.79 | 2777.48 | 2929.74 | 2744.03 | 3019.48 | Mt | High
+Safety Incidents | 5702.0 | 6161.31 | 5740.05 | 5995.68 | 7244.28 | ML | Medium
+
+=== Page 20-20 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 20
+Risk Indicators
+Risk Indicators — Table Group 1
+Risk Indicators presents synthetic operational and geological observations for reporting year 2023. The dataset is intentionally
+structured to resemble a technical mining report and contains repeated cross-references between mine-level production, exploration
+activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Project Progress
+5214.77
+5635.87
+6989.77
+6952.23
+6708.13
+m3
+Medium
+Drilling Meterage
+349.8
+387.05
+473.34
+446.76
+370.16
+m
+Medium
+Drilling Meterage
+3744.9
+3513.92
+4474.8
+3329.24
+4421.04
+ha
+High
+Reclamation Area
+4669.31
+3724.92
+4762.48
+3754.93
+4065.48
+m
+Medium
+Net Geological Reserves
+282.59
+270.21
+340.27
+318.35
+340.67
+%
+High
+Boreholes Completed
+6156.65
+5358.9
+6138.1
+7009.66
+5229.25
+Mt
+High
+Key Indicators
+Indicator
+Value
+Unit
+Period
+Source Context
+Annual production
+1,710
+kt
+2025-26
+Risk Indicators, Table 7
+Exploration coverage
+57.62
+%
+2025-26
+Risk Indicators, Table 7
+Average productivity
+4.36
+t/man-shift
+2025-26
+Risk Indicators, Table 7
+Recovery factor
+74.25
+%
+2025-26
+Risk Indicators, Table 7
+Interpretation Notes
+Trend comparisons should be interpreted using the stated period, unit and mine/subsidiary scope. Where multiple tables report the
+same metric, page and section context should be retained when constructing retrieval citations. Some values are deliberately
+repeated or slightly transformed across sections to test retrieval disambiguation and claim validation.
+
+=== Page 20-20 ===
+Indicator | Value | Unit | Period | Source Context
+----------------------------------------
+Annual production | 1,710 | kt | 2025-26 | Risk Indicators, Table 7
+Exploration coverage | 57.62 | % | 2025-26 | Risk Indicators, Table 7
+Average productivity | 4.36 | t/man-shift | 2025-26 | Risk Indicators, Table 7
+Recovery factor | 74.25 | % | 2025-26 | Risk Indicators, Table 7
+
+=== Page 20-20 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Project Progress | 5214.77 | 5635.87 | 6989.77 | 6952.23 | 6708.13 | m3 | Medium
+Drilling Meterage | 349.8 | 387.05 | 473.34 | 446.76 | 370.16 | m | Medium
+Drilling Meterage | 3744.9 | 3513.92 | 4474.8 | 3329.24 | 4421.04 | ha | High
+Reclamation Area | 4669.31 | 3724.92 | 4762.48 | 3754.93 | 4065.48 | m | Medium
+Net Geological Reserves | 282.59 | 270.21 | 340.27 | 318.35 | 340.67 | % | High
+Boreholes Completed | 6156.65 | 5358.9 | 6138.1 | 7009.66 | 5229.25 | Mt | High
+
+=== Page 21-21 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 21
+Annexure Statistical Tables
+Annexure Statistical Tables — Table Group 1
+Annexure Statistical Tables presents synthetic operational and geological observations for reporting year 2024. The dataset is
+intentionally structured to resemble a technical mining report and contains repeated cross-references between mine-level production,
+exploration activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Energy Consumption
+1857.61
+2109.25
+1607.57
+1611.95
+1928.42
+m3
+High
+Exploration Area
+9892.32
+8904.8
+9550.2
+8648.4
+9276.4
+GWh
+High
+Boreholes Completed
+2196.1
+2067.92
+2142.87
+2112.32
+1791.16
+%
+High
+Grade Quality
+6348.47
+5555.83
+6167.63
+5396.48
+5396.43
+Mt
+High
+Manpower
+6898.44
+8871.67
+6965.79
+6974.39
+8631.74
+ha
+Medium
+Coal Production
+9670.58
+10001.3
+9209.99
+10622.83
+10828.97
+GWh
+Medium
+Coal Production
+5038.84
+4647.92
+5003.5
+4429.63
+5127.35
+m
+High
+Net Geological Reserves
+8991.61
+10186.14
+9616.14
+10321.05
+10435.75
+t
+Medium
+
+=== Page 21-21 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Energy Consumption | 1857.61 | 2109.25 | 1607.57 | 1611.95 | 1928.42 | m3 | High
+Exploration Area | 9892.32 | 8904.8 | 9550.2 | 8648.4 | 9276.4 | GWh | High
+Boreholes Completed | 2196.1 | 2067.92 | 2142.87 | 2112.32 | 1791.16 | % | High
+Grade Quality | 6348.47 | 5555.83 | 6167.63 | 5396.48 | 5396.43 | Mt | High
+Manpower | 6898.44 | 8871.67 | 6965.79 | 6974.39 | 8631.74 | ha | Medium
+Coal Production | 9670.58 | 10001.3 | 9209.99 | 10622.83 | 10828.97 | GWh | Medium
+Coal Production | 5038.84 | 4647.92 | 5003.5 | 4429.63 | 5127.35 | m | High
+Net Geological Reserves | 8991.61 | 10186.14 | 9616.14 | 10321.05 | 10435.75 | t | Medium
+
+=== Page 22-22 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 22
+Executive Summary
+Executive Summary — Table Group 2
+Executive Summary presents synthetic operational and geological observations for reporting year 2025. The dataset is intentionally
+structured to resemble a technical mining report and contains repeated cross-references between mine-level production, exploration
+activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Project Progress
+3853.0
+4210.24
+4925.48
+5158.16
+4323.94
+ha
+High
+Water Consumption
+5841.68
+7307.5
+7811.49
+5890.09
+6847.95
+GWh
+High
+Dispatch
+5138.81
+5425.61
+5449.31
+6596.69
+5954.81
+t
+High
+Manpower
+936.28
+821.57
+932.85
+882.53
+870.08
+Mt
+High
+Boreholes Completed
+7578.99
+8459.8
+8051.11
+9152.46
+8617.85
+Mt
+High
+Drilling Meterage
+7731.26
+5729.46
+6051.67
+7647.02
+7263.8
+Mt
+High
+Key Indicators
+Indicator
+Value
+Unit
+Period
+Source Context
+Annual production
+6,575
+kt
+2025-26
+Executive Summary, Table 2
+Exploration coverage
+60.16
+%
+2025-26
+Executive Summary, Table 2
+Average productivity
+4.48
+t/man-shift
+2025-26
+Executive Summary, Table 2
+Recovery factor
+75.21
+%
+2025-26
+Executive Summary, Table 2
+
+=== Page 22-22 ===
+Indicator | Value | Unit | Period | Source Context
+----------------------------------------
+Annual production | 6,575 | kt | 2025-26 | Executive Summary, Table 2
+Exploration coverage | 60.16 | % | 2025-26 | Executive Summary, Table 2
+Average productivity | 4.48 | t/man-shift | 2025-26 | Executive Summary, Table 2
+Recovery factor | 75.21 | % | 2025-26 | Executive Summary, Table 2
+
+=== Page 22-22 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Project Progress | 3853.0 | 4210.24 | 4925.48 | 5158.16 | 4323.94 | ha | High
+Water Consumption | 5841.68 | 7307.5 | 7811.49 | 5890.09 | 6847.95 | GWh | High
+Dispatch | 5138.81 | 5425.61 | 5449.31 | 6596.69 | 5954.81 | t | High
+Manpower | 936.28 | 821.57 | 932.85 | 882.53 | 870.08 | Mt | High
+Boreholes Completed | 7578.99 | 8459.8 | 8051.11 | 9152.46 | 8617.85 | Mt | High
+Drilling Meterage | 7731.26 | 5729.46 | 6051.67 | 7647.02 | 7263.8 | Mt | High
+
+=== Page 23-23 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Manpower | 6503.49 | 5876.75 | 6557.65 | 6784.18 | 6133.8 | GWh | Medium
+Coal Production | 6233.93 | 8377.19 | 8236.94 | 7556.85 | 7551.25 | GWh | High
+Overburden Removal | 5795.98 | 6466.52 | 7517.98 | 7113.78 | 7585.73 | ML | High
+Grade Quality | 1677.49 | 1880.92 | 1842.71 | 1767.24 | 1716.9 | ML | High
+Net Geological Reserves | 2482.12 | 2997.38 | 2902.42 | 2590.86 | 3129.7 | ML | Medium
+Coal Recovery | 2315.84 | 2242.66 | 2284.07 | 2614.16 | 2742.74 | m3 | High
+
+=== Page 23-23 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 23
+Regional Production Statistics
+Regional Production Statistics — Table Group 2
+Regional Production Statistics presents synthetic operational and geological observations for reporting year 2026. The dataset is
+intentionally structured to resemble a technical mining report and contains repeated cross-references between mine-level production,
+exploration activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Manpower
+6503.49
+5876.75
+6557.65
+6784.18
+6133.8
+GWh
+Medium
+Coal Production
+6233.93
+8377.19
+8236.94
+7556.85
+7551.25
+GWh
+High
+Overburden Removal
+5795.98
+6466.52
+7517.98
+7113.78
+7585.73
+ML
+High
+Grade Quality
+1677.49
+1880.92
+1842.71
+1767.24
+1716.9
+ML
+High
+Net Geological Reserves
+2482.12
+2997.38
+2902.42
+2590.86
+3129.7
+ML
+Medium
+Coal Recovery
+2315.84
+2242.66
+2284.07
+2614.16
+2742.74
+m3
+High
+
+=== Page 24-24 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Boreholes Completed | 8251.74 | 8519.94 | 8562.22 | 8835.48 | 9375.51 | ML | Medium
+Net Geological Reserves | 2535.92 | 2560.2 | 2695.46 | 2832.8 | 2662.19 | ML | Medium
+Overburden Removal | 5198.55 | 4479.83 | 5040.94 | 4902.57 | 5508.52 | m3 | Medium
+Water Consumption | 8247.35 | 8787.46 | 9818.61 | 9224.82 | 7300.15 | m | High
+Water Consumption | 8041.59 | 9222.57 | 7910.01 | 8842.79 | 8911.13 | m3 | Medium
+Energy Consumption | 2511.38 | 3146.04 | 3415.07 | 2971.78 | 3053.18 | ML | High
+Project Progress | 4627.08 | 5225.35 | 5077.63 | 4109.18 | 5003.41 | ML | High
+Net Geological Reserves | 1668.52 | 1578.13 | 1507.17 | 1823.34 | 1882.85 | ha | High
+
+=== Page 24-24 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 24
+Mine-wise Production
+Mine-wise Production — Table Group 2
+Mine-wise Production presents synthetic operational and geological observations for reporting year 2021. The dataset is intentionally
+structured to resemble a technical mining report and contains repeated cross-references between mine-level production, exploration
+activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Boreholes Completed
+8251.74
+8519.94
+8562.22
+8835.48
+9375.51
+ML
+Medium
+Net Geological Reserves
+2535.92
+2560.2
+2695.46
+2832.8
+2662.19
+ML
+Medium
+Overburden Removal
+5198.55
+4479.83
+5040.94
+4902.57
+5508.52
+m3
+Medium
+Water Consumption
+8247.35
+8787.46
+9818.61
+9224.82
+7300.15
+m
+High
+Water Consumption
+8041.59
+9222.57
+7910.01
+8842.79
+8911.13
+m3
+Medium
+Energy Consumption
+2511.38
+3146.04
+3415.07
+2971.78
+3053.18
+ML
+High
+Project Progress
+4627.08
+5225.35
+5077.63
+4109.18
+5003.41
+ML
+High
+Net Geological Reserves
+1668.52
+1578.13
+1507.17
+1823.34
+1882.85
+ha
+High
+Key Indicators
+Indicator
+Value
+Unit
+Period
+Source Context
+Annual production
+2,535
+kt
+2025-26
+Mine-wise Production, Table 4
+Exploration coverage
+80.06
+%
+2025-26
+Mine-wise Production, Table 4
+Average productivity
+2.13
+t/man-shift
+2025-26
+Mine-wise Production, Table 4
+Recovery factor
+72.54
+%
+2025-26
+Mine-wise Production, Table 4
+
+=== Page 24-24 ===
+Indicator | Value | Unit | Period | Source Context
+----------------------------------------
+Annual production | 2,535 | kt | 2025-26 | Mine-wise Production, Table 4
+Exploration coverage | 80.06 | % | 2025-26 | Mine-wise Production, Table 4
+Average productivity | 2.13 | t/man-shift | 2025-26 | Mine-wise Production, Table 4
+Recovery factor | 72.54 | % | 2025-26 | Mine-wise Production, Table 4
+
+=== Page 25-25 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Energy Consumption | 5840.43 | 7078.73 | 5745.97 | 6758.6 | 6939.19 | ML | High
+Energy Consumption | 7727.14 | 9378.77 | 8915.15 | 7511.82 | 8343.74 | m | High
+Boreholes Completed | 7402.59 | 9540.17 | 7304.54 | 7677.17 | 8979.68 | t | Medium
+Net Geological Reserves | 2322.43 | 2001.25 | 2020.54 | 2391.74 | 2342.36 | ha | Medium
+Dispatch | 761.62 | 828.65 | 717.86 | 770.04 | 729.83 | % | High
+Reclamation Area | 3817.71 | 4471.32 | 4026.63 | 4506.01 | 3894.15 | % | High
+
+=== Page 25-25 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 25
+Geological Exploration
+Geological Exploration — Table Group 2
+Geological Exploration presents synthetic operational and geological observations for reporting year 2022. The dataset is
+intentionally structured to resemble a technical mining report and contains repeated cross-references between mine-level production,
+exploration activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Energy Consumption
+5840.43
+7078.73
+5745.97
+6758.6
+6939.19
+ML
+High
+Energy Consumption
+7727.14
+9378.77
+8915.15
+7511.82
+8343.74
+m
+High
+Boreholes Completed
+7402.59
+9540.17
+7304.54
+7677.17
+8979.68
+t
+Medium
+Net Geological Reserves
+2322.43
+2001.25
+2020.54
+2391.74
+2342.36
+ha
+Medium
+Dispatch
+761.62
+828.65
+717.86
+770.04
+729.83
+%
+High
+Reclamation Area
+3817.71
+4471.32
+4026.63
+4506.01
+3894.15
+%
+High
+Interpretation Notes
+Trend comparisons should be interpreted using the stated period, unit and mine/subsidiary scope. Where multiple tables report the
+same metric, page and section context should be retained when constructing retrieval citations. Some values are deliberately
+repeated or slightly transformed across sections to test retrieval disambiguation and claim validation.
+
+=== Page 26-26 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 26
+Drilling & Borehole Statistics
+Drilling & Borehole Statistics — Table Group 2
+Drilling & Borehole Statistics presents synthetic operational and geological observations for reporting year 2023. The dataset is
+intentionally structured to resemble a technical mining report and contains repeated cross-references between mine-level production,
+exploration activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Boreholes Completed
+5210.9
+4787.13
+4657.41
+4262.29
+4320.25
+ha
+High
+Coal Production
+9099.24
+8263.68
+7082.01
+9025.44
+9039.23
+Mt
+High
+Boreholes Completed
+2542.26
+3100.82
+2431.48
+2687.68
+3137.12
+m
+High
+Project Progress
+6742.08
+5759.18
+5724.02
+5681.14
+5704.41
+m3
+High
+Drilling Meterage
+493.2
+456.17
+559.98
+496.0
+464.09
+t
+High
+Project Progress
+8488.79
+7056.19
+8513.12
+7852.62
+6712.9
+m3
+High
+Key Indicators
+Indicator
+Value
+Unit
+Period
+Source Context
+Annual production
+5,393
+kt
+2025-26
+Drilling & Borehole Statistics, Table 6
+Exploration coverage
+64.27
+%
+2025-26
+Drilling & Borehole Statistics, Table 6
+Average productivity
+2.19
+t/man-shift
+2025-26
+Drilling & Borehole Statistics, Table 6
+Recovery factor
+92.03
+%
+2025-26
+Drilling & Borehole Statistics, Table 6
+
+=== Page 26-26 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Boreholes Completed | 5210.9 | 4787.13 | 4657.41 | 4262.29 | 4320.25 | ha | High
+Coal Production | 9099.24 | 8263.68 | 7082.01 | 9025.44 | 9039.23 | Mt | High
+Boreholes Completed | 2542.26 | 3100.82 | 2431.48 | 2687.68 | 3137.12 | m | High
+Project Progress | 6742.08 | 5759.18 | 5724.02 | 5681.14 | 5704.41 | m3 | High
+Drilling Meterage | 493.2 | 456.17 | 559.98 | 496.0 | 464.09 | t | High
+Project Progress | 8488.79 | 7056.19 | 8513.12 | 7852.62 | 6712.9 | m3 | High
+
+=== Page 26-26 ===
+Indicator | Value | Unit | Period | Source Context
+----------------------------------------
+Annual production | 5,393 | kt | 2025-26 | Drilling & Borehole Statistics, Table 6
+Exploration coverage | 64.27 | % | 2025-26 | Drilling & Borehole Statistics, Table 6
+Average productivity | 2.19 | t/man-shift | 2025-26 | Drilling & Borehole Statistics, Table 6
+Recovery factor | 92.03 | % | 2025-26 | Drilling & Borehole Statistics, Table 6
+
+=== Page 27-27 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Water Consumption | 8694.17 | 9707.04 | 8161.45 | 7829.13 | 8163.74 | % | High
+Overburden Removal | 8708.0 | 7130.23 | 8486.78 | 7743.34 | 7475.91 | GWh | High
+Water Consumption | 5476.62 | 5815.23 | 6291.98 | 5178.51 | 6888.94 | m3 | Medium
+Reclamation Area | 9361.39 | 8592.08 | 7247.43 | 9601.24 | 7311.45 | GWh | High
+Exploration Area | 309.0 | 278.81 | 296.9 | 340.28 | 282.57 | ML | High
+Coal Production | 6055.95 | 6569.88 | 5343.31 | 6503.86 | 5899.58 | % | Medium
+Manpower | 1989.78 | 2521.37 | 2283.93 | 2161.49 | 1975.4 | m | High
+Net Geological Reserves | 5284.29 | 6086.29 | 5331.1 | 4840.63 | 5687.05 | m | High
+
+=== Page 27-27 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 27
+Reserve & Resource Estimation
+Reserve & Resource Estimation — Table Group 2
+Reserve & Resource Estimation presents synthetic operational and geological observations for reporting year 2024. The dataset is
+intentionally structured to resemble a technical mining report and contains repeated cross-references between mine-level production,
+exploration activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Water Consumption
+8694.17
+9707.04
+8161.45
+7829.13
+8163.74
+%
+High
+Overburden Removal
+8708.0
+7130.23
+8486.78
+7743.34
+7475.91
+GWh
+High
+Water Consumption
+5476.62
+5815.23
+6291.98
+5178.51
+6888.94
+m3
+Medium
+Reclamation Area
+9361.39
+8592.08
+7247.43
+9601.24
+7311.45
+GWh
+High
+Exploration Area
+309.0
+278.81
+296.9
+340.28
+282.57
+ML
+High
+Coal Production
+6055.95
+6569.88
+5343.31
+6503.86
+5899.58
+%
+Medium
+Manpower
+1989.78
+2521.37
+2283.93
+2161.49
+1975.4
+m
+High
+Net Geological Reserves
+5284.29
+6086.29
+5331.1
+4840.63
+5687.05
+m
+High
+
+=== Page 28-28 ===
+Indicator | Value | Unit | Period | Source Context
+----------------------------------------
+Annual production | 3,713 | kt | 2025-26 | Coal Quality & Grade Analysis, Table 1
+Exploration coverage | 84.20 | % | 2025-26 | Coal Quality & Grade Analysis, Table 1
+Average productivity | 7.46 | t/man-shift | 2025-26 | Coal Quality & Grade Analysis, Table 1
+Recovery factor | 73.28 | % | 2025-26 | Coal Quality & Grade Analysis, Table 1
+
+=== Page 28-28 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 28
+Coal Quality & Grade Analysis
+Coal Quality & Grade Analysis — Table Group 2
+Coal Quality & Grade Analysis presents synthetic operational and geological observations for reporting year 2025. The dataset is
+intentionally structured to resemble a technical mining report and contains repeated cross-references between mine-level production,
+exploration activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Net Geological Reserves
+954.38
+807.62
+750.6
+817.54
+960.89
+%
+High
+Net Geological Reserves
+3183.85
+3185.21
+3623.22
+3207.53
+3496.82
+GWh
+High
+Grade Quality
+3126.26
+2903.8
+2664.59
+3240.78
+2889.2
+GWh
+High
+Safety Incidents
+7146.35
+6399.26
+8399.16
+7148.79
+8708.71
+Mt
+Medium
+Boreholes Completed
+875.03
+1058.6
+969.11
+1111.99
+1072.28
+t
+High
+Coal Recovery
+6299.96
+6377.33
+8074.14
+7090.84
+7130.27
+t
+Medium
+Key Indicators
+Indicator
+Value
+Unit
+Period
+Source Context
+Annual production
+3,713
+kt
+2025-26
+Coal Quality & Grade Analysis, Table 1
+Exploration coverage
+84.20
+%
+2025-26
+Coal Quality & Grade Analysis, Table 1
+Average productivity
+7.46
+t/man-shift
+2025-26
+Coal Quality & Grade Analysis, Table 1
+Recovery factor
+73.28
+%
+2025-26
+Coal Quality & Grade Analysis, Table 1
+
+=== Page 28-28 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Net Geological Reserves | 954.38 | 807.62 | 750.6 | 817.54 | 960.89 | % | High
+Net Geological Reserves | 3183.85 | 3185.21 | 3623.22 | 3207.53 | 3496.82 | GWh | High
+Grade Quality | 3126.26 | 2903.8 | 2664.59 | 3240.78 | 2889.2 | GWh | High
+Safety Incidents | 7146.35 | 6399.26 | 8399.16 | 7148.79 | 8708.71 | Mt | Medium
+Boreholes Completed | 875.03 | 1058.6 | 969.11 | 1111.99 | 1072.28 | t | High
+Coal Recovery | 6299.96 | 6377.33 | 8074.14 | 7090.84 | 7130.27 | t | Medium
+
+=== Page 29-29 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 29
+Overburden & Stripping Ratio
+Overburden & Stripping Ratio — Table Group 2
+Overburden & Stripping Ratio presents synthetic operational and geological observations for reporting year 2026. The dataset is
+intentionally structured to resemble a technical mining report and contains repeated cross-references between mine-level production,
+exploration activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Boreholes Completed
+1373.66
+1354.45
+1297.68
+1406.33
+1233.56
+m3
+High
+Safety Incidents
+3174.47
+3059.91
+3238.5
+2931.9
+2930.38
+%
+High
+Water Consumption
+5148.86
+5624.18
+4378.41
+4277.85
+4181.62
+ha
+Medium
+Dispatch
+1677.67
+1754.79
+1764.13
+1607.62
+1628.09
+Mt
+High
+Coal Recovery
+2879.58
+3066.62
+2815.26
+2950.65
+2703.35
+m3
+High
+Boreholes Completed
+2181.14
+2378.54
+2276.4
+2438.58
+2358.12
+ha
+Medium
+
+=== Page 29-29 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Boreholes Completed | 1373.66 | 1354.45 | 1297.68 | 1406.33 | 1233.56 | m3 | High
+Safety Incidents | 3174.47 | 3059.91 | 3238.5 | 2931.9 | 2930.38 | % | High
+Water Consumption | 5148.86 | 5624.18 | 4378.41 | 4277.85 | 4181.62 | ha | Medium
+Dispatch | 1677.67 | 1754.79 | 1764.13 | 1607.62 | 1628.09 | Mt | High
+Coal Recovery | 2879.58 | 3066.62 | 2815.26 | 2950.65 | 2703.35 | m3 | High
+Boreholes Completed | 2181.14 | 2378.54 | 2276.4 | 2438.58 | 2358.12 | ha | Medium
+
+=== Page 30-30 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 30
+Dispatch & Logistics
+Dispatch & Logistics — Table Group 2
+Dispatch & Logistics presents synthetic operational and geological observations for reporting year 2021. The dataset is intentionally
+structured to resemble a technical mining report and contains repeated cross-references between mine-level production, exploration
+activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Project Progress
+1289.04
+1449.42
+1603.21
+1488.26
+1455.51
+GWh
+Medium
+Overburden Removal
+2483.4
+2254.36
+2120.86
+2280.57
+2047.67
+ha
+High
+Grade Quality
+9618.51
+7279.24
+7467.27
+7546.18
+7578.02
+ML
+Medium
+Drilling Meterage
+6706.5
+5897.64
+5454.42
+5067.17
+5288.81
+Mt
+High
+Energy Consumption
+5325.5
+4463.96
+5369.42
+5288.09
+5269.63
+ha
+Medium
+Water Consumption
+6351.37
+5837.69
+6319.52
+4851.92
+4883.39
+Mt
+Medium
+Drilling Meterage
+9399.19
+10090.78
+9652.47
+10054.0
+9004.54
+Mt
+High
+Drilling Meterage
+6422.5
+5926.0
+5897.11
+6736.98
+6835.74
+m
+High
+Key Indicators
+Indicator
+Value
+Unit
+Period
+Source Context
+Annual production
+3,553
+kt
+2025-26
+Dispatch & Logistics, Table 3
+Exploration coverage
+68.44
+%
+2025-26
+Dispatch & Logistics, Table 3
+Average productivity
+5.94
+t/man-shift
+2025-26
+Dispatch & Logistics, Table 3
+Recovery factor
+85.23
+%
+2025-26
+Dispatch & Logistics, Table 3
+Interpretation Notes
+Trend comparisons should be interpreted using the stated period, unit and mine/subsidiary scope. Where multiple tables report the
+same metric, page and section context should be retained when constructing retrieval citations. Some values are deliberately
+repeated or slightly transformed across sections to test retrieval disambiguation and claim validation.
+
+=== Page 30-30 ===
+Indicator | Value | Unit | Period | Source Context
+----------------------------------------
+Annual production | 3,553 | kt | 2025-26 | Dispatch & Logistics, Table 3
+Exploration coverage | 68.44 | % | 2025-26 | Dispatch & Logistics, Table 3
+Average productivity | 5.94 | t/man-shift | 2025-26 | Dispatch & Logistics, Table 3
+Recovery factor | 85.23 | % | 2025-26 | Dispatch & Logistics, Table 3
+
+=== Page 30-30 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Project Progress | 1289.04 | 1449.42 | 1603.21 | 1488.26 | 1455.51 | GWh | Medium
+Overburden Removal | 2483.4 | 2254.36 | 2120.86 | 2280.57 | 2047.67 | ha | High
+Grade Quality | 9618.51 | 7279.24 | 7467.27 | 7546.18 | 7578.02 | ML | Medium
+Drilling Meterage | 6706.5 | 5897.64 | 5454.42 | 5067.17 | 5288.81 | Mt | High
+Energy Consumption | 5325.5 | 4463.96 | 5369.42 | 5288.09 | 5269.63 | ha | Medium
+Water Consumption | 6351.37 | 5837.69 | 6319.52 | 4851.92 | 4883.39 | Mt | Medium
+Drilling Meterage | 9399.19 | 10090.78 | 9652.47 | 10054.0 | 9004.54 | Mt | High
+Drilling Meterage | 6422.5 | 5926.0 | 5897.11 | 6736.98 | 6835.74 | m | High
+
+=== Page 31-31 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 31
+Land Reclamation
+Land Reclamation — Table Group 2
+Land Reclamation presents synthetic operational and geological observations for reporting year 2022. The dataset is intentionally
+structured to resemble a technical mining report and contains repeated cross-references between mine-level production, exploration
+activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Coal Recovery
+6746.13
+5155.2
+5606.84
+5966.83
+5509.98
+%
+High
+Exploration Area
+6984.49
+6614.69
+7087.99
+7317.88
+7883.76
+m
+High
+Coal Recovery
+6324.3
+5944.42
+4995.2
+4940.72
+6435.46
+%
+High
+Project Progress
+5228.19
+4542.0
+5052.78
+5160.57
+4795.84
+ML
+High
+Coal Production
+4767.62
+5363.31
+5012.65
+4730.25
+4831.89
+m3
+High
+Manpower
+4821.64
+4874.21
+4298.67
+4348.78
+4594.23
+m
+High
+
+=== Page 31-31 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Coal Recovery | 6746.13 | 5155.2 | 5606.84 | 5966.83 | 5509.98 | % | High
+Exploration Area | 6984.49 | 6614.69 | 7087.99 | 7317.88 | 7883.76 | m | High
+Coal Recovery | 6324.3 | 5944.42 | 4995.2 | 4940.72 | 6435.46 | % | High
+Project Progress | 5228.19 | 4542.0 | 5052.78 | 5160.57 | 4795.84 | ML | High
+Coal Production | 4767.62 | 5363.31 | 5012.65 | 4730.25 | 4831.89 | m3 | High
+Manpower | 4821.64 | 4874.21 | 4298.67 | 4348.78 | 4594.23 | m | High
+
+=== Page 32-32 ===
+Indicator | Value | Unit | Period | Source Context
+----------------------------------------
+Annual production | 2,041 | kt | 2025-26 | Water Management, Table 5
+Exploration coverage | 80.09 | % | 2025-26 | Water Management, Table 5
+Average productivity | 2.33 | t/man-shift | 2025-26 | Water Management, Table 5
+Recovery factor | 81.76 | % | 2025-26 | Water Management, Table 5
+
+=== Page 32-32 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 32
+Water Management
+Water Management — Table Group 2
+Water Management presents synthetic operational and geological observations for reporting year 2023. The dataset is intentionally
+structured to resemble a technical mining report and contains repeated cross-references between mine-level production, exploration
+activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Reclamation Area
+4225.02
+4904.16
+5314.35
+4550.13
+5668.62
+m3
+High
+Overburden Removal
+6393.46
+7710.22
+6789.68
+6377.17
+5902.18
+GWh
+Medium
+Coal Production
+691.29
+867.62
+891.24
+816.85
+720.05
+ha
+High
+Project Progress
+4812.98
+6252.61
+5815.74
+5050.68
+5115.25
+%
+Medium
+Water Consumption
+5043.92
+4293.7
+4808.74
+4445.9
+4948.39
+Mt
+Medium
+Coal Recovery
+513.69
+460.55
+523.1
+573.86
+510.74
+m
+Medium
+Key Indicators
+Indicator
+Value
+Unit
+Period
+Source Context
+Annual production
+2,041
+kt
+2025-26
+Water Management, Table 5
+Exploration coverage
+80.09
+%
+2025-26
+Water Management, Table 5
+Average productivity
+2.33
+t/man-shift
+2025-26
+Water Management, Table 5
+Recovery factor
+81.76
+%
+2025-26
+Water Management, Table 5
+
+=== Page 32-32 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Reclamation Area | 4225.02 | 4904.16 | 5314.35 | 4550.13 | 5668.62 | m3 | High
+Overburden Removal | 6393.46 | 7710.22 | 6789.68 | 6377.17 | 5902.18 | GWh | Medium
+Coal Production | 691.29 | 867.62 | 891.24 | 816.85 | 720.05 | ha | High
+Project Progress | 4812.98 | 6252.61 | 5815.74 | 5050.68 | 5115.25 | % | Medium
+Water Consumption | 5043.92 | 4293.7 | 4808.74 | 4445.9 | 4948.39 | Mt | Medium
+Coal Recovery | 513.69 | 460.55 | 523.1 | 573.86 | 510.74 | m | Medium
+
+=== Page 33-33 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Water Consumption | 5706.14 | 6810.45 | 5465.36 | 7364.69 | 5627.65 | t | High
+Net Geological Reserves | 6288.82 | 7518.24 | 6879.38 | 7710.89 | 8042.83 | t | Medium
+Manpower | 7936.16 | 8268.19 | 9219.32 | 8833.57 | 8236.33 | ha | High
+Project Progress | 8546.55 | 8581.22 | 9792.02 | 9644.0 | 9419.01 | Mt | Medium
+Dispatch | 3762.95 | 3046.63 | 3067.22 | 3746.21 | 3789.27 | Mt | Medium
+Drilling Meterage | 7775.83 | 7860.32 | 9416.22 | 9048.34 | 7659.89 | m3 | Medium
+Energy Consumption | 8817.44 | 10590.72 | 10112.95 | 10515.26 | 10072.31 | Mt | High
+Exploration Area | 1309.46 | 1352.04 | 1269.58 | 1368.32 | 1245.46 | Mt | Medium
+
+=== Page 33-33 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 33
+Energy Consumption
+Energy Consumption — Table Group 2
+Energy Consumption presents synthetic operational and geological observations for reporting year 2024. The dataset is intentionally
+structured to resemble a technical mining report and contains repeated cross-references between mine-level production, exploration
+activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Water Consumption
+5706.14
+6810.45
+5465.36
+7364.69
+5627.65
+t
+High
+Net Geological Reserves
+6288.82
+7518.24
+6879.38
+7710.89
+8042.83
+t
+Medium
+Manpower
+7936.16
+8268.19
+9219.32
+8833.57
+8236.33
+ha
+High
+Project Progress
+8546.55
+8581.22
+9792.02
+9644.0
+9419.01
+Mt
+Medium
+Dispatch
+3762.95
+3046.63
+3067.22
+3746.21
+3789.27
+Mt
+Medium
+Drilling Meterage
+7775.83
+7860.32
+9416.22
+9048.34
+7659.89
+m3
+Medium
+Energy Consumption
+8817.44
+10590.72
+10112.95
+10515.26
+10072.31
+Mt
+High
+Exploration Area
+1309.46
+1352.04
+1269.58
+1368.32
+1245.46
+Mt
+Medium
+
+=== Page 34-34 ===
+Indicator | Value | Unit | Period | Source Context
+----------------------------------------
+Annual production | 9,461 | kt | 2025-26 | Environmental Monitoring, Table 7
+Exploration coverage | 75.12 | % | 2025-26 | Environmental Monitoring, Table 7
+Average productivity | 2.47 | t/man-shift | 2025-26 | Environmental Monitoring, Table 7
+Recovery factor | 64.72 | % | 2025-26 | Environmental Monitoring, Table 7
+
+=== Page 34-34 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Safety Incidents | 4073.85 | 4784.28 | 4741.44 | 4230.05 | 4864.7 | m | Medium
+Drilling Meterage | 812.69 | 881.79 | 924.46 | 987.16 | 823.88 | ha | High
+Energy Consumption | 7980.71 | 7261.21 | 9239.77 | 7576.22 | 8416.69 | m3 | Medium
+Water Consumption | 3995.06 | 4234.12 | 4505.71 | 4475.9 | 3537.09 | ha | High
+Coal Recovery | 7340.66 | 6039.4 | 7256.4 | 7523.05 | 6262.5 | t | High
+Exploration Area | 9906.18 | 10911.58 | 9079.63 | 9447.94 | 10025.13 | % | High
+
+=== Page 34-34 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 34
+Environmental Monitoring
+Environmental Monitoring — Table Group 2
+Environmental Monitoring presents synthetic operational and geological observations for reporting year 2025. The dataset is
+intentionally structured to resemble a technical mining report and contains repeated cross-references between mine-level production,
+exploration activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Safety Incidents
+4073.85
+4784.28
+4741.44
+4230.05
+4864.7
+m
+Medium
+Drilling Meterage
+812.69
+881.79
+924.46
+987.16
+823.88
+ha
+High
+Energy Consumption
+7980.71
+7261.21
+9239.77
+7576.22
+8416.69
+m3
+Medium
+Water Consumption
+3995.06
+4234.12
+4505.71
+4475.9
+3537.09
+ha
+High
+Coal Recovery
+7340.66
+6039.4
+7256.4
+7523.05
+6262.5
+t
+High
+Exploration Area
+9906.18
+10911.58
+9079.63
+9447.94
+10025.13
+%
+High
+Key Indicators
+Indicator
+Value
+Unit
+Period
+Source Context
+Annual production
+9,461
+kt
+2025-26
+Environmental Monitoring, Table 7
+Exploration coverage
+75.12
+%
+2025-26
+Environmental Monitoring, Table 7
+Average productivity
+2.47
+t/man-shift
+2025-26
+Environmental Monitoring, Table 7
+Recovery factor
+64.72
+%
+2025-26
+Environmental Monitoring, Table 7
+
+=== Page 35-35 ===
+CMPDI-style Synthetic Mining & Geological Statistical Report — TEST DATA
+Page 35
+Mine Safety Statistics
+Mine Safety Statistics — Table Group 2
+Mine Safety Statistics presents synthetic operational and geological observations for reporting year 2026. The dataset is intentionally
+structured to resemble a technical mining report and contains repeated cross-references between mine-level production, exploration
+activity, reserves, dispatch, environmental indicators and safety statistics. Values are synthetic and are intended only for
+document-processing, OCR, structure extraction, table parsing, retrieval and citation testing. The report distinguishes observed
+measurements from derived indicators and preserves page and section context.
+Parameter
+2021-22
+2022-23
+2023-24
+2024-25
+2025-26
+Unit
+Confidence
+Manpower
+8127.53
+8303.14
+6543.65
+7350.4
+7245.29
+m
+High
+Water Consumption
+7582.54
+6894.08
+5947.56
+7234.16
+6164.1
+ha
+High
+Net Geological Reserves
+3547.31
+4058.79
+4144.54
+3900.52
+3985.55
+t
+High
+Energy Consumption
+6466.36
+5230.18
+5340.14
+5709.8
+5903.1
+Mt
+Medium
+Overburden Removal
+4791.64
+4555.25
+5742.06
+4969.92
+4932.53
+ML
+High
+Safety Incidents
+10506.75
+10042.61
+10175.91
+10246.4
+10056.07
+m3
+Medium
+Interpretation Notes
+Trend comparisons should be interpreted using the stated period, unit and mine/subsidiary scope. Where multiple tables report the
+same metric, page and section context should be retained when constructing retrieval citations. Some values are deliberately
+repeated or slightly transformed across sections to test retrieval disambiguation and claim validation.
+
+=== Page 35-35 ===
+Parameter | 2021-22 | 2022-23 | 2023-24 | 2024-25 | 2025-26 | Unit | Confidence
+----------------------------------------
+Manpower | 8127.53 | 8303.14 | 6543.65 | 7350.4 | 7245.29 | m | High
+Water Consumption | 7582.54 | 6894.08 | 5947.56 | 7234.16 | 6164.1 | ha | High
+Net Geological Reserves | 3547.31 | 4058.79 | 4144.54 | 3900.52 | 3985.55 | t | High
+Energy Consumption | 6466.36 | 5230.18 | 5340.14 | 5709.8 | 5903.1 | Mt | Medium
+Overburden Removal | 4791.64 | 4555.25 | 5742.06 | 4969.92 | 4932.53 | ML | High
+Safety Incidents | 10506.75 | 10042.61 | 10175.91 | 10246.4 | 10056.07 | m3 | Medium
+

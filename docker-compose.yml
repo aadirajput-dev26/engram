@@ -1,0 +1,105 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: rag-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: rag_ai
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d rag_ai"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: rag-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/6333 && exit 0 || exit 1'"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  ai-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag-ai-service
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    environment:
+      SERVICE_ENV: local
+      AI_SERVICE_API_KEY: ${AI_SERVICE_API_KEY:-test-service-key}
+      AI_SCOPE_TOKEN_SECRET: ${AI_SCOPE_TOKEN_SECRET:-test-scope-secret-must-be-32-chars-long}
+      AI_DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/rag_ai
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_COLLECTION_NAME: document_chunks
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://generativelanguage.googleapis.com/v1beta/openai/}
+      LLM_API_KEY: ${LLM_API_KEY}
+      LLM_MODEL_NAME: ${LLM_MODEL_NAME:-gemini-flash-lite-latest}
+      PAGEINDEX_MODEL_NAME: ${PAGEINDEX_MODEL_NAME:-gemini/gemini-flash-lite-latest}
+      GEMINI_API_KEY: ${LLM_API_KEY}
+      GOOGLE_API_KEY: ${LLM_API_KEY}
+      EMBEDDING_MODEL_NAME: BAAI/bge-base-en-v1.5
+      RERANKER_MODEL_NAME: BAAI/bge-reranker-base
+      OCR_ENGINE: rapidocr
+    volumes:
+      - ./data:/app/data
+      - ./storage:/app/storage
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag-worker
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+      ai-service:
+        condition: service_started
+    environment:
+      SERVICE_ENV: local
+      AI_SERVICE_API_KEY: ${AI_SERVICE_API_KEY:-test-service-key}
+      AI_SCOPE_TOKEN_SECRET: ${AI_SCOPE_TOKEN_SECRET:-test-scope-secret-must-be-32-chars-long}
+      AI_DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/rag_ai
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_COLLECTION_NAME: document_chunks
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://generativelanguage.googleapis.com/v1beta/openai/}
+      LLM_API_KEY: ${LLM_API_KEY}
+      LLM_MODEL_NAME: ${LLM_MODEL_NAME:-gemini-flash-lite-latest}
+      PAGEINDEX_MODEL_NAME: ${PAGEINDEX_MODEL_NAME:-gemini/gemini-flash-lite-latest}
+      GEMINI_API_KEY: ${LLM_API_KEY}
+      GOOGLE_API_KEY: ${LLM_API_KEY}
+      EMBEDDING_MODEL_NAME: BAAI/bge-base-en-v1.5
+      RERANKER_MODEL_NAME: BAAI/bge-reranker-base
+      OCR_ENGINE: rapidocr
+    volumes:
+      - ./data:/app/data
+      - ./storage:/app/storage
+    command: python -m app.workers.runner
+
+volumes:
+  postgres_data:
+  qdrant_data:
