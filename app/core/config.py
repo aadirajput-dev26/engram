@@ -70,24 +70,18 @@ class Settings(BaseSettings):
     PAGE_BATCH_SIZE: int = 10
     MAX_STAGE_RETRY_COUNT: int = 3
 
-    # --- 8. PageIndex ---
-    PAGEINDEX_MODE: Literal["local", "cloud"] = "local"
-    PAGEINDEX_API_KEY: Optional[str] = None
-    PAGEINDEX_MODEL_NAME: str = "gemini/gemini-3.6-flash"
-    PAGEINDEX_STORAGE_PATH: str = ".pageindex"
-
-    # --- 9. Retrieval Tuning ---
+    # --- 8. Retrieval Tuning ---
     RETRIEVAL_TOP_N_SEMANTIC: int = 30
     RETRIEVAL_TOP_N_KEYWORD: int = 30
     RETRIEVAL_TOP_M_FUSED: int = 40
     RETRIEVAL_TOP_K_FINAL: int = 10
     RRF_K_CONSTANT: int = 60
 
-    # --- 10. Topic Analysis ---
+    # --- 9. Topic Analysis ---
     TOPIC_MODEL_BACKEND: str = "lda"
     TOPIC_ASYNC_THRESHOLD_DOCS: int = 20
 
-    # --- 11. Job Queue / Workers ---
+    # --- 10. Job Queue / Workers ---
     WORKER_POLL_INTERVAL_SECONDS: int = 5
     WORKER_CONCURRENCY: int = 2
 

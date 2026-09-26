@@ -17,8 +17,7 @@ from app.core.config import get_settings
 from app.core.embeddings.embedding_service import embed_texts, get_embedding_dimension, get_model_name
 from app.core.logging import get_logger
 from app.core.ocr.ocr_service import is_ocr_available, ocr_page_image, ocr_pdf_page
-from app.core.pageindex.adapter import PageIndexAdapter, get_pageindex_adapter
-from app.core.pageindex.mapper import MappedSection, map_tree_to_sections
+
 from app.core.parsing.parser_factory import parse_document
 from app.core.parsing.pdf_parser import ParsedDocument
 from app.core.storage.local_storage import get_storage
@@ -152,40 +151,27 @@ async def ingest_document(
             db.add(page)
             pages_text[parsed_page.page_number] = raw_text
 
-        # 7. PageIndex structure understanding
-        logger.info("Stage: STRUCTURE_EXTRACTION via PageIndex")
-        sections: List[MappedSection] = []
-        try:
-            adapter = get_pageindex_adapter()
-            pi_result = adapter.process_document(file_path)
-            if pi_result.success and pi_result.tree:
-                sections = map_tree_to_sections(pi_result.tree, parsed.page_count)
-                # Use PageIndex page texts if richer than PyMuPDF
-                for page_idx, pi_text in pi_result.page_texts.items():
-                    page_num = page_idx + 1
-                    if pi_text and len(pi_text) > len(pages_text.get(page_num, "")):
-                        pages_text[page_num] = pi_text
-            else:
-                logger.warning(
-                    "PageIndex processing failed or returned empty tree: %s",
-                    pi_result.error,
-                )
-        except Exception as e:
-            logger.warning("PageIndex unavailable, using fallback structure: %s", e)
+        # 7. Structure extraction (Local PyMuPDF fallback)
+        logger.info("Stage: STRUCTURE_EXTRACTION (Local)")
+        
+        # We define a dummy section class for now or use page-based fallback.
+        # Since we removed PageIndex, we will rely on page-level chunking unless
+        # we implement a local font-size based heuristic.
+        class LocalSection:
+            def __init__(self, id, parent_id, level, title, page_start, page_end, section_path):
+                self.id = id
+                self.parent_id = parent_id
+                self.level = level
+                self.title = title
+                self.page_start = page_start
+                self.page_end = page_end
+                self.section_path = section_path
 
-        # 8. Save Section records
-        for ms in sections:
-            section = Section(
-                id=ms.id,
-                document_version_id=version_id,
-                parent_section_id=ms.parent_id,
-                level=ms.level,
-                title=ms.title,
-                page_start=ms.page_start,
-                page_end=ms.page_end,
-                section_path=ms.section_path,
-            )
-            db.add(section)
+        sections = []
+        
+        # For a basic local heuristic, we can just treat the whole doc as one section 
+        # or rely entirely on the page-based fallback in the chunker.
+        # 8. Save Section records (None for now as we use fallback chunking)
 
         # 9. Save Table records
         tables_text: Dict[int, List[str]] = {}

@@ -17,7 +17,6 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from app.core.logging import get_logger
-from app.core.pageindex.mapper import MappedSection
 
 logger = get_logger(__name__)
 
@@ -55,7 +54,7 @@ def _compute_hash(text: str) -> str:
 
 def chunk_document(
     pages_text: dict[int, str],
-    sections: List[MappedSection],
+    sections: List[Any],
     tables_text: dict[int, List[str]],
     max_tokens: int = DEFAULT_MAX_CHUNK_TOKENS,
     min_tokens: int = DEFAULT_MIN_CHUNK_TOKENS,
@@ -132,8 +131,11 @@ def chunk_document(
     # Add table chunks separately (never merged with paragraph text)
     for page_num, table_texts in sorted(tables_text.items()):
         # Find the section this table belongs to
-        from app.core.pageindex.mapper import get_section_for_page
-        section = get_section_for_page(sections, page_num)
+        section = None
+        for s in sections:
+            if s.page_start <= page_num <= s.page_end:
+                section = s
+                break
         for tbl_text in table_texts:
             if tbl_text.strip():
                 chunks.append(ChunkRecord(

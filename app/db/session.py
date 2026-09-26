@@ -1,5 +1,6 @@
 """
 Async database session management.
+Supports Supabase (PostgreSQL with SSL required) and local development.
 """
 from __future__ import annotations
 
@@ -14,16 +15,30 @@ _async_session_factory = None
 
 
 def get_engine():
-    """Get or create the async SQLAlchemy engine."""
+    """Get or create the async SQLAlchemy engine.
+    
+    In production (Supabase), SSL is required and the free tier
+    limits connections to ~15, so pool_size is kept small.
+    """
     global _engine
     if _engine is None:
         settings = get_settings()
+        is_production = settings.SERVICE_ENV == "production"
+
+        # Supabase requires SSL in production.
+        # asyncpg accepts ssl as a connect_arg.
+        connect_args = {"ssl": "require"} if is_production else {}
+
         _engine = create_async_engine(
             settings.AI_DATABASE_URL,
             echo=settings.SERVICE_ENV == "local",
-            pool_size=5,
-            max_overflow=10,
+            # Supabase free tier allows ~15 connections total.
+            # Keep pool small to avoid "too many connections" errors.
+            pool_size=3 if is_production else 5,
+            max_overflow=2 if is_production else 10,
             pool_pre_ping=True,
+            pool_recycle=300,  # Recycle stale connections every 5 minutes
+            connect_args=connect_args,
         )
     return _engine
 
