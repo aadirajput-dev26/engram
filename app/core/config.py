@@ -1,7 +1,7 @@
-"""
+"\"\"
 Application settings loaded from environment variables and .env file.
 All external configuration is centralized here per docs/19_ENVIRONMENT_VARIABLES.md.
-"""
+\"\"\"
 from __future__ import annotations
 
 from typing import Literal, Optional
@@ -11,7 +11,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Central configuration for the AI Document Intelligence service."""
+    "\"\"Central configuration for the AI Document Intelligence service.\"\"\"
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -39,11 +39,16 @@ class Settings(BaseSettings):
     @field_validator("AI_DATABASE_URL")
     @classmethod
     def force_asyncpg(cls, v: str) -> str:
-        """Ensure the URL uses the asyncpg driver, converting Supabase default URLs."""
+        "\"\"Ensure the URL uses the asyncpg driver, converting Supabase default URLs.\"\"\"
         if v.startswith("postgres://"):
-            return v.replace("postgres://", "postgresql+asyncpg://", 1)
-        if v.startswith("postgresql://"):
-            return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+            v = v.replace("postgres://", "postgresql+asyncpg://", 1)
+        elif v.startswith("postgresql://") and "asyncpg" not in v:
+            v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        
+        if "prepared_statement_cache_size" not in v:
+            sep = "&" if "?" in v else "?"
+            v += f"{sep}prepared_statement_cache_size=0"
+            
         return v
 
     # --- 3. Object Storage ---
@@ -97,12 +102,12 @@ class Settings(BaseSettings):
 
     @property
     def database_url_sync(self) -> str:
-        """Return a synchronous database URL (for Alembic)."""
+        "\"\"Return a synchronous database URL (for Alembic).\"\"\"
         return self.AI_DATABASE_URL.replace(
             "postgresql+asyncpg://", "postgresql+psycopg2://"
         )
 
 
 def get_settings() -> Settings:
-    """Factory for Settings, enabling test-time overrides."""
+    "\"\"Factory for Settings, enabling test-time overrides.\"\"\"
     return Settings()
