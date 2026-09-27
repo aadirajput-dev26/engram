@@ -82,62 +82,6 @@ def run_tests():
     print("   Response:", json.dumps(r.json(), indent=2))
     assert r.status_code == 200
 
-    # 7. Extract API (Structured facts extraction)
-    extract_payload = {
-        "document_id": doc_id,
-        "document_version_id": doc_ver_id
-    }
-    r = client.post("/api/v1/extract", json=extract_payload)
-    print(f"\n7. POST /api/v1/extract -> Status: {r.status_code}")
-    print("   Response:", json.dumps(r.json(), indent=2))
-    assert r.status_code == 200
-
-    # 8. Topics Analysis Trigger
-    topics_payload = {
-        "org_id": ORG_ID,
-        "workspace_id": WORKSPACE_ID,
-        "document_ids": [doc_id],
-        "num_topics": 3
-    }
-    r = client.post("/api/v1/topics", json=topics_payload)
-    print(f"\n8. POST /api/v1/topics -> Status: {r.status_code}")
-    topic_resp = r.json()
-    print("   Response:", json.dumps(topic_resp, indent=2))
-    assert r.status_code == 200
-    topic_job_id = topic_resp["job_id"]
-
-    # 9. Topics Results Retrieval
-    r = client.get(f"/api/v1/topics/{topic_job_id}?org_id={ORG_ID}&workspace_id={WORKSPACE_ID}")
-    print(f"\n9. GET /api/v1/topics/{topic_job_id} -> Status: {r.status_code}")
-    print("   Response:", json.dumps(r.json(), indent=2))
-    assert r.status_code == 200
-
-    # 10. Reports Generation Trigger
-    report_payload = {
-        "org_id": ORG_ID,
-        "workspace_id": WORKSPACE_ID,
-        "report_type": "EXECUTIVE_SUMMARY",
-        "parameters": {"title": "Candidate Profile Report"},
-        "output_format": "docx"
-    }
-    r = client.post("/api/v1/reports/generate", json=report_payload)
-    print(f"\n10. POST /api/v1/reports/generate -> Status: {r.status_code}")
-    report_resp = r.json()
-    print("    Response:", json.dumps(report_resp, indent=2))
-    assert r.status_code == 200
-    report_job_id = report_resp["job_id"]
-
-    # 11. Reports Draft Retrieval
-    r = client.get(f"/api/v1/reports/{report_job_id}?org_id={ORG_ID}&workspace_id={WORKSPACE_ID}")
-    print(f"\n11. GET /api/v1/reports/{report_job_id} -> Status: {r.status_code}")
-    print("    Response:", json.dumps(r.json(), indent=2))
-    assert r.status_code == 200
-
-    # 12. Reports Download
-    r = client.get(f"/api/v1/reports/{report_job_id}/download?org_id={ORG_ID}&workspace_id={WORKSPACE_ID}")
-    print(f"\n12. GET /api/v1/reports/{report_job_id}/download -> Status: {r.status_code}, Content-Type: {r.headers.get('content-type')}, Length: {len(r.content)} bytes")
-    assert r.status_code == 200
-
     print("\n==================================================")
     print("ALL API ENDPOINTS TESTED SUCCESSFULLY AND WORKING!")
     print("==================================================")

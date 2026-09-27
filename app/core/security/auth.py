@@ -1,13 +1,18 @@
 """
-Simplified single-layer API key authentication for the FastAPI microservice.
+Security / authentication layer.
 
-All calls must come from the trusted Express backend, proven by the
-X-Api-Key header matching AI_SERVICE_API_KEY in the environment.
+Two auth paths co-exist:
 
-Tenant context (org_id, workspace_id, user_id, etc.) is passed directly
-in each request body by Express, which handles RBAC at its own layer.
+1. sk-engram-* API keys (new — for end-users of the RAG platform)
+   Header: Authorization: Bearer sk-engram-...
+   → resolve_tenant_from_key()  returns TenantContext
+   → RAG endpoints auto-inject org_id / workspace_id from context
 
-See docs/02_SYSTEM_ARCHITECTURE.md §4 for the updated security model.
+2. Shared X-Api-Key (legacy — for the trusted Express backend)
+   Header: X-Api-Key: <AI_SERVICE_API_KEY from .env>
+   → require_api_key() / verify_api_key()  (unchanged behaviour)
+
+See docs/02_SYSTEM_ARCHITECTURE.md §4.
 """
 from __future__ import annotations
 
@@ -15,10 +20,18 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 from uuid import UUID
 
-from fastapi import Depends, Header, HTTPException, status
+import jwt
+from fastapi import Depends, Header, HTTPException, Security, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings, get_settings
+from app.db.session import get_db
+from app.schemas.auth import TenantContext
 
+# ---------------------------------------------------------------------------
+# Legacy path — shared X-Api-Key (Express → FastAPI internal)
+# ---------------------------------------------------------------------------
 
 async def verify_api_key(
     x_api_key: str = Header(..., alias="X-Api-Key"),
@@ -53,9 +66,138 @@ async def require_api_key(
 
 
 # ---------------------------------------------------------------------------
-# Backwards-compatibility shims so that existing endpoint code that
-# imports ScopeContext, require_auth, require_scope, require_permission
-# continues to work without changes during the transition.
+# New path — sk-engram-* bearer keys (end-user RAG clients)
+# ---------------------------------------------------------------------------
+
+_bearer_scheme = HTTPBearer(auto_error=False)
+
+
+async def resolve_tenant_from_key(
+    credentials: Optional[HTTPAuthorizationCredentials] = Security(_bearer_scheme),
+    db: AsyncSession = Depends(get_db),
+) -> TenantContext:
+    """
+    FastAPI dependency: resolve TenantContext from a Bearer sk-engram-* token.
+
+    Usage on an endpoint::
+
+        @router.post("/ingest")
+        async def ingest(tenant: TenantContext = Depends(resolve_tenant_from_key)):
+            ...
+
+    Raises 401 if the token is missing, malformed, or not found in the DB.
+    """
+    from app.services.auth_service import resolve_key
+
+    if not credentials or not credentials.credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={
+                "error": {
+                    "code": "MISSING_AUTH",
+                    "message": "Authorization header with Bearer sk-engram-* key is required.",
+                    "details": {},
+                }
+            },
+        )
+
+    raw_key = credentials.credentials
+
+    if not raw_key.startswith("sk-engram-"):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={
+                "error": {
+                    "code": "INVALID_KEY_FORMAT",
+                    "message": "API key must start with 'sk-engram-'.",
+                    "details": {},
+                }
+            },
+        )
+
+    api_key = await resolve_key(db, raw_key)
+
+    if not api_key:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={
+                "error": {
+                    "code": "INVALID_API_KEY",
+                    "message": "API key is invalid, expired, or has been revoked.",
+                    "details": {},
+                }
+            },
+        )
+
+    return TenantContext(
+        org_id=api_key.org_id,
+        workspace_id=api_key.workspace_id,
+        user_id=api_key.created_by,
+        key_id=api_key.id,
+    )
+
+
+# ---------------------------------------------------------------------------
+# JWT dependency — for dashboard endpoints (auth router)
+# ---------------------------------------------------------------------------
+
+async def get_current_user_id(
+    credentials: Optional[HTTPAuthorizationCredentials] = Security(_bearer_scheme),
+    settings: Settings = Depends(get_settings),
+) -> dict:
+    """
+    Validate a dashboard JWT and return the decoded payload.
+    Raises 401 on any failure.
+
+    Returns dict with keys: sub (user_id str), org (org_id str).
+    """
+    if not credentials or not credentials.credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={
+                "error": {
+                    "code": "MISSING_TOKEN",
+                    "message": "Authorization header with Bearer JWT is required.",
+                    "details": {},
+                }
+            },
+        )
+
+    token = credentials.credentials
+
+    # sk-engram-* keys are API keys, not JWTs — reject them here
+    if token.startswith("sk-engram-"):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={
+                "error": {
+                    "code": "USE_API_KEY_ENDPOINT",
+                    "message": "sk-engram-* keys are not valid JWT tokens.",
+                    "details": {},
+                }
+            },
+        )
+
+    try:
+        payload = jwt.decode(
+            token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+        )
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"error": {"code": "TOKEN_EXPIRED", "message": "JWT has expired.", "details": {}}},
+        )
+    except jwt.PyJWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"error": {"code": "INVALID_TOKEN", "message": "JWT is invalid.", "details": {}}},
+        )
+
+    return payload  # {"sub": user_id_str, "org": org_id_str}
+
+
+# ---------------------------------------------------------------------------
+# Backwards-compatibility shims (kept for existing endpoints)
 # ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
