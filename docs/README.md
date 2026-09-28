@@ -75,7 +75,7 @@ Several documents (notably `10_MULTI_TENANCY_RBAC.md`, `12_REPORT_GENERATION.md`
 
 > **VERIFY AGAINST EXISTING REPOSITORY**
 
-This means: the actual current implementation of the existing Node.js Backend application was not known at the time this documentation was written, and the coding agent must inspect the real codebase before implementing the affected piece — not assume the documented default is already true of the existing code.
+This means: the actual current implementation of the existing Node.js Backend was not known at the time this documentation was written, and the coding agent must inspect the real codebase before implementing the affected piece — not assume the documented default is already true of the existing code.
 
 ## How Decisions Are Recorded
 

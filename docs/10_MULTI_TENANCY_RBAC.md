@@ -21,7 +21,7 @@ Organization  (e.g., a CIL subsidiary, or CMPDI, or a Ministry department — ge
 | `MEMBER` | Workspace(s) they're added to | Normal usage: upload, query, generate reports, subject to granted capabilities. |
 | `VIEWER` | Workspace(s)/document(s) they're granted | Read-only: view documents, analytics, reports. Cannot upload, delete, or trigger AI actions that mutate state (may still be granted `ai.query` read-style access — see capability table). |
 
-> **VERIFY AGAINST EXISTING REPOSITORY:** if the existing Node.js Backend app already implements a different role set, this document's roles must be reconciled with (not silently replacing) the existing implementation before coding begins. This role set matches the problem statement's explicit list and is the target if no conflicting implementation exists.
+> **VERIFY AGAINST EXISTING REPOSITORY:** if the existing Node.js Backend already implements a different role set, this document's roles must be reconciled with (not silently replacing) the existing implementation before coding begins. This role set matches the problem statement's explicit list and is the target if no conflicting implementation exists.
 
 ## 3. Capabilities (capability-based permission model)
 

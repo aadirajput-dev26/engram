@@ -14,7 +14,7 @@ All values below are variable **names and semantics**. No real secret values are
 
 | Variable | Used by | Description |
 |---|---|---|
-| `EXPRESS_DATABASE_URL` | Node.js Backend | Node.js Backend-owned PostgreSQL schema connection string — **VERIFY AGAINST EXISTING REPOSITORY** for current variable name |
+| `BACKEND_DATABASE_URL` | Node.js Backend | Node.js Backend-owned PostgreSQL schema connection string — **VERIFY AGAINST EXISTING REPOSITORY** for current variable name |
 | `AI_DATABASE_URL` | FastAPI | AI-owned PostgreSQL schema connection string (may point at the same physical instance, different schema — see `02_SYSTEM_ARCHITECTURE.md` §1) |
 
 ## 3. Object Storage

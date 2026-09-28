@@ -4,7 +4,7 @@
 
 - All endpoints are prefixed `/api/v1` (versioned from day one).
 - All endpoints require:
-  - Header `X-Api-Key: <AI_SERVICE_API_KEY>` — proves the caller is the trusted Node.js Backend backend.
+  - Header `X-Api-Key: <AI_SERVICE_API_KEY>` — proves the caller is the trusted Node.js Backend.
   - Requests missing or failing this check return `401 Unauthorized`.
 - All request/response bodies are Pydantic models (see `09_DATA_MODELS.md`); FastAPI's automatic OpenAPI schema is the source of truth for exact field types, generated from these models — this document specifies intent, field presence, and semantics, not a hand-duplicated JSON schema.
 - Errors follow a consistent envelope:
