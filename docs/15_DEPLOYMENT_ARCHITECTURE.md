@@ -9,7 +9,7 @@ This separation is treated as a first-class design concern, not an afterthought 
 | Component | Suggested Platform |
 |---|---|
 | Frontend | Vercel |
-| Express Core API | Render (or equivalent small web service) |
+| Node.js Core API (`BACKEND`) | Render (or equivalent small web service) |
 | FastAPI AI Service | Render (or equivalent small web service) |
 | Job workers | Same Render service as FastAPI (a background worker process/dyno) or a second small Render service, depending on available plan tiers |
 | PostgreSQL | A managed PostgreSQL provider (e.g., Render Postgres, Supabase, Neon — implementation choice, not mandated) |
@@ -27,7 +27,7 @@ This separation is treated as a first-class design concern, not an afterthought 
 | Component | Production Approach |
 |---|---|
 | Frontend | CDN-hosted static/SSR frontend (Vercel or equivalent scales natively) |
-| Express Core API | Horizontally scaled container/service behind a load balancer |
+| Node.js Core API (`BACKEND`) | Horizontally scaled container/service behind a load balancer |
 | FastAPI AI Service (API layer) | Horizontally scaled container/service, stateless (all state in Postgres/Qdrant/object storage) |
 | Job workers | Independently scaled worker pool (separate deployment/replica count from the API layer), sized based on processing throughput needs; can scale up during bulk archival-digitization phases and down otherwise |
 | PostgreSQL | Managed, production-tier PostgreSQL with backups, read replicas if needed |
@@ -49,7 +49,7 @@ The documentation does not claim any specific throughput number (e.g., pages/min
 
 ## 5. Configuration-Driven Provider Choices
 
-To keep prototype and production interchangeable without code changes, all external-service endpoints are environment-variable-driven (see `19_ENVIRONMENT_VARIABLES.md`): LLM base URL/API key/model name, Qdrant URL/API key, object storage endpoint/credentials/bucket, PostgreSQL connection strings (separate for Express and AI schemas per `02_SYSTEM_ARCHITECTURE.md` §1's decision).
+To keep prototype and production interchangeable without code changes, all external-service endpoints are environment-variable-driven (see `19_ENVIRONMENT_VARIABLES.md`): LLM base URL/API key/model name, Qdrant URL/API key, object storage endpoint/credentials/bucket, PostgreSQL connection strings (separate for Node.js Backend and AI schemas per `02_SYSTEM_ARCHITECTURE.md` §1's decision).
 
 ## 6. Local Development
 

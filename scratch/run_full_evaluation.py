@@ -493,7 +493,7 @@ scorecard_md += f"""
 
 full_report = output_markdown + scorecard_md
 
-report_path = r"c:\Users\Aadityaraj\PROJECTS\RAG PIPELINE\TEST_RESULTS_35_PAGE_REPORT.md"
+report_path = r"c:\Users\Aadityaraj\PROJECTS\RAG PIPELINE\TEST_RESULTS_NEW_ALGO.md"
 with open(report_path, "w", encoding="utf-8") as f:
     f.write(full_report)
 

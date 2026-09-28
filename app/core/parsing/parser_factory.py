@@ -101,7 +101,7 @@ def parse_document(
     """
     parser_type = _resolve_parser_type(mime_type, filename or file_path)
     logger.info(
-        "parser_factory: routing '%s' (mime=%s) → %s parser",
+        "parser_factory: routing '%s' (mime=%s) -> %s parser",
         os.path.basename(file_path), mime_type, parser_type,
     )
 

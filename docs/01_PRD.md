@@ -31,7 +31,7 @@ A user requests a report (e.g., "production summary for Mine X, 2020–2024" or 
 
 ## 4. Functional Requirements
 
-### FR-1 Document Management (Express, existing + extended)
+### FR-1 Document Management (Node.js Backend, existing + extended)
 - Upload documents into Organization → Workspace → Folder hierarchy.
 - Track document metadata, version, and processing status.
 - Enforce access control at document/workspace/organization level.
@@ -63,7 +63,7 @@ A user requests a report (e.g., "production summary for Mine X, 2020–2024" or 
 ### FR-6 Multi-Tenancy & RBAC
 - Generic Organization model (no hard-coded subsidiaries).
 - Organization → Workspace → Folder → Document hierarchy.
-- Role-based + capability-based permission enforcement, consistently applied in both Express and the scope passed to FastAPI.
+- Role-based + capability-based permission enforcement, consistently applied in both Node.js Backend and the scope passed to FastAPI.
 
 ### FR-7 Traceability & Validation
 - Every structured fact stores document/page/section provenance.
@@ -76,7 +76,7 @@ A user requests a report (e.g., "production summary for Mine X, 2020–2024" or 
 |---|---|
 | Scalability | Processing workers must scale independently of the API layer. Architecture must not assume documents fit in memory. |
 | Portability | LLM provider configurable via environment variables (OpenAI-compatible). No vendor lock-in in code. |
-| Security | Tenant/workspace/document isolation enforced at every layer; FastAPI never bypasses Express-issued authorization scope. |
+| Security | Tenant/workspace/document isolation enforced at every layer; FastAPI never bypasses Node.js Backend-issued authorization scope. |
 | Traceability | No unsupported factual claims; system prefers explicit "no evidence found" responses. |
 | Observability | Structured logging across both services; job/processing status is queryable at every stage. |
 | Reusability | The AI service's core RAG/document-intelligence engine must not hard-code CMPDI/CIL-specific concepts into its architecture (domain-specific *content handling*, e.g., production/mine/grade extraction schemas, is expected and acceptable; hard-coded organization names/IDs are not). |

@@ -2,21 +2,21 @@
 
 ## 1. Authentication Boundary
 
-- End users authenticate only against Express (mechanism: **VERIFY AGAINST EXISTING REPOSITORY**).
+- End users authenticate only against Node.js Backend (mechanism: **VERIFY AGAINST EXISTING REPOSITORY**).
 - FastAPI never authenticates end users directly and has no user-login endpoint of its own.
-- Service-to-service calls (Express → FastAPI) authenticate via a static shared API key (`AI_SERVICE_API_KEY`) transmitted over HTTPS as the `X-Api-Key` header.
+- Service-to-service calls (Node.js Backend → FastAPI) authenticate via a static shared API key (`AI_SERVICE_API_KEY`) transmitted over HTTPS as the `X-Api-Key` header.
 
 ## 2. Authorization / Tenant / Workspace / Document Isolation
 
 - Full mechanism specified in `02_SYSTEM_ARCHITECTURE.md` §4 and `10_MULTI_TENANCY_RBAC.md`. Summary of the security-relevant guarantees:
   - Every FastAPI request carries the `X-Api-Key` header; FastAPI verifies this header before doing anything else.
-  - Every retrieval/query/analysis operation expects the explicit tenant context (`org_id`, `workspace_id`) in the request payload or query parameters, supplied directly by Express.
+  - Every retrieval/query/analysis operation expects the explicit tenant context (`org_id`, `workspace_id`) in the request payload or query parameters, supplied directly by Node.js Backend.
   - This scope context is applied as a **native filter** at the data-access layer (Qdrant payload filter, Postgres `WHERE org_id = ... AND workspace_id = ... AND document_id IN (...)`), preventing both data leakage and timing/count side-channels.
 
 ## 3. Service-to-Service API Authentication
 
 - `AI_SERVICE_API_KEY`: long-lived shared API key, rotated periodically (rotation process: operational runbook, not specified further here), stored only in environment/secret managers — never in source control.
-- This secret is transmitted only over HTTPS/TLS between Express and FastAPI, including in local development where feasible (self-signed cert acceptable locally).
+- This secret is transmitted only over HTTPS/TLS between Node.js Backend and FastAPI, including in local development where feasible (self-signed cert acceptable locally).
 
 ## 4. Secrets Management
 

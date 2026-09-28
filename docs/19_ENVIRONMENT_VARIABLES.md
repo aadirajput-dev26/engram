@@ -7,21 +7,21 @@ All values below are variable **names and semantics**. No real secret values are
 | Variable | Used by | Description |
 |---|---|---|
 | `SERVICE_ENV` | Both | `local \| staging \| production` |
-| `AI_SERVICE_BASE_URL` | Express | Base URL Express uses to reach the FastAPI service |
-| `AI_SERVICE_API_KEY` | Both | Shared API key sent by Express as X-Api-Key header (see `16_SECURITY.md` §3) |
+| `AI_SERVICE_BASE_URL` | Node.js Backend | Base URL Node.js Backend uses to reach the FastAPI service |
+| `AI_SERVICE_API_KEY` | Both | Shared API key sent by Node.js Backend as X-Api-Key header (see `16_SECURITY.md` §3) |
 
 ## 2. Database
 
 | Variable | Used by | Description |
 |---|---|---|
-| `EXPRESS_DATABASE_URL` | Express | Express-owned PostgreSQL schema connection string — **VERIFY AGAINST EXISTING REPOSITORY** for current variable name |
+| `EXPRESS_DATABASE_URL` | Node.js Backend | Node.js Backend-owned PostgreSQL schema connection string — **VERIFY AGAINST EXISTING REPOSITORY** for current variable name |
 | `AI_DATABASE_URL` | FastAPI | AI-owned PostgreSQL schema connection string (may point at the same physical instance, different schema — see `02_SYSTEM_ARCHITECTURE.md` §1) |
 
 ## 3. Object Storage
 
 | Variable | Used by | Description |
 |---|---|---|
-| `OBJECT_STORAGE_ENDPOINT` | FastAPI (+ Express if it generates pre-signed upload URLs) | S3-compatible endpoint URL |
+| `OBJECT_STORAGE_ENDPOINT` | FastAPI (+ Node.js Backend if it generates pre-signed upload URLs) | S3-compatible endpoint URL |
 | `OBJECT_STORAGE_BUCKET` | Both | Bucket name for raw documents and processing intermediates |
 | `OBJECT_STORAGE_ACCESS_KEY` | Both | Access key |
 | `OBJECT_STORAGE_SECRET_KEY` | Both | Secret key |

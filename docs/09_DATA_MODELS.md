@@ -2,7 +2,7 @@
 
 All models below are specified as Pydantic models (FastAPI request/response and internal domain objects). PostgreSQL vs. Qdrant responsibility is called out per model. Field types are indicative; exact Python typing (e.g., `Decimal` vs `float` for monetary/measurement values — recommend `Decimal` for stored facts to avoid float drift) is an implementation detail to be finalized during Phase 1/Phase 11 (`18_IMPLEMENTATION_ROADMAP.md`).
 
-## 1. `Document` (PostgreSQL — AI schema, mirrors a subset of Express's document record by `document_id` reference)
+## 1. `Document` (PostgreSQL — AI schema, mirrors a subset of Node.js Backend's document record by `document_id` reference)
 
 ```python
 class Document(BaseModel):
@@ -17,7 +17,7 @@ class Document(BaseModel):
     updated_at: datetime
 ```
 
-> Note: `id`/`org_id`/`workspace_id`/`folder_id` values are **provided by Express** at ingest time and treated as foreign references, not independently assigned. FastAPI does not create organizations/workspaces/folders.
+> Note: `id`/`org_id`/`workspace_id`/`folder_id` values are **provided by Node.js Backend** at ingest time and treated as foreign references, not independently assigned. FastAPI does not create organizations/workspaces/folders.
 
 ## 2. `DocumentVersion`
 
@@ -267,4 +267,4 @@ class TopicResult(BaseModel):
 | Chunk **text + metadata** | PostgreSQL (AI schema) — also feeds the FTS `tsvector` column |
 | Chunk **embedding vector** | Qdrant, payload includes the filterable fields listed in `05_RETRIEVAL_AND_RERANKING.md` §3 |
 
-All UUIDs referencing `org_id`/`workspace_id`/`user_id` are foreign references to Express-owned entities; FastAPI does not define or migrate those tables.
+All UUIDs referencing `org_id`/`workspace_id`/`user_id` are foreign references to Node.js Backend-owned entities; FastAPI does not define or migrate those tables.

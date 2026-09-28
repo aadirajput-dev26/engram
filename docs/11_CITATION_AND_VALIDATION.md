@@ -39,7 +39,7 @@ Given the parliamentary/administrative-reporting context, numeric claims receive
 
 ## 5. Citation Format Returned to Clients
 
-Every citation object (`Citation` model, `09_DATA_MODELS.md` §11) includes enough to render a human-checkable reference: document name, page number, section path, and (for facts) the underlying raw source text. The Express/frontend layer is expected to render this as a clickable/expandable reference, not just a footnote number — but exact UI is out of scope for this backend-focused documentation pack.
+Every citation object (`Citation` model, `09_DATA_MODELS.md` §11) includes enough to render a human-checkable reference: document name, page number, section path, and (for facts) the underlying raw source text. The Node.js Backend/frontend layer is expected to render this as a clickable/expandable reference, not just a footnote number — but exact UI is out of scope for this backend-focused documentation pack.
 
 ## 6. "No Evidence Found" Response Contract
 

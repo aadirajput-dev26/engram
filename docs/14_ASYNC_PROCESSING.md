@@ -58,4 +58,4 @@ This reuse (one job-queue implementation, multiple task types) is an explicit si
 
 ## 7. Status Visibility
 
-All async operations expose a consistent status-polling shape (`job_id`, `overall_status`/`status`, stage/progress detail where applicable) so Express (and ultimately the frontend) can implement a single generic "job status" UI pattern rather than bespoke polling per feature.
+All async operations expose a consistent status-polling shape (`job_id`, `overall_status`/`status`, stage/progress detail where applicable) so Node.js Backend (and ultimately the frontend) can implement a single generic "job status" UI pattern rather than bespoke polling per feature.

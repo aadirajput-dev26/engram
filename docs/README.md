@@ -8,7 +8,7 @@ This `docs/` folder is the **single source of truth for implementation** for thi
 |---|---|
 | `00_PROJECT_CONTEXT.md` | Origin of the project, the problem statement it responds to, what already exists, and the non-negotiable constraints carried through every other document. |
 | `01_PRD.md` | Product requirements: users/roles, user journeys, functional and non-functional requirements, success criteria for the SIH demo. |
-| `02_SYSTEM_ARCHITECTURE.md` | The target system architecture: Express core + new FastAPI AI service, service boundaries, cross-service authentication/authorization design, data ownership, reusability boundary. |
+| `02_SYSTEM_ARCHITECTURE.md` | The target system architecture: Node.js Backend core + new FastAPI AI service, service boundaries, cross-service authentication/authorization design, data ownership, reusability boundary. |
 | `03_RAG_PIPELINE_SPEC.md` | The end-to-end hybrid (structured + unstructured) document-intelligence/RAG pipeline, and why a generic PDF→chunks→vector-DB→LLM pipeline is insufficient for this domain. |
 | `04_DOCUMENT_PROCESSING_SPEC.md` | Ingestion, classification, OCR, structure understanding, metadata extraction, structure-aware chunking, versioning, large-document handling, failure handling. |
 | `05_RETRIEVAL_AND_RERANKING.md` | Embedding strategy, vector index design, keyword retrieval, candidate fusion, reranking, context selection, and authorization filtering at the retrieval layer. |
@@ -75,7 +75,7 @@ Several documents (notably `10_MULTI_TENANCY_RBAC.md`, `12_REPORT_GENERATION.md`
 
 > **VERIFY AGAINST EXISTING REPOSITORY**
 
-This means: the actual current implementation of the existing Express application was not known at the time this documentation was written, and the coding agent must inspect the real codebase before implementing the affected piece — not assume the documented default is already true of the existing code.
+This means: the actual current implementation of the existing Node.js Backend application was not known at the time this documentation was written, and the coding agent must inspect the real codebase before implementing the affected piece — not assume the documented default is already true of the existing code.
 
 ## How Decisions Are Recorded
 

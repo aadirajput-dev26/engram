@@ -4,14 +4,14 @@
 
 - All endpoints are prefixed `/api/v1` (versioned from day one).
 - All endpoints require:
-  - Header `X-Api-Key: <AI_SERVICE_API_KEY>` — proves the caller is the trusted Express backend.
+  - Header `X-Api-Key: <AI_SERVICE_API_KEY>` — proves the caller is the trusted Node.js Backend backend.
   - Requests missing or failing this check return `401 Unauthorized`.
 - All request/response bodies are Pydantic models (see `09_DATA_MODELS.md`); FastAPI's automatic OpenAPI schema is the source of truth for exact field types, generated from these models — this document specifies intent, field presence, and semantics, not a hand-duplicated JSON schema.
 - Errors follow a consistent envelope:
   ```json
   { "error": { "code": "STRING_ERROR_CODE", "message": "human readable", "details": {} } }
   ```
-- Idempotency: endpoints that create a resource accept an optional `Idempotency-Key` header; replaying the same key returns the original result rather than creating a duplicate (important for document ingestion retries from Express).
+- Idempotency: endpoints that create a resource accept an optional `Idempotency-Key` header; replaying the same key returns the original result rather than creating a duplicate (important for document ingestion retries from Node.js Backend).
 
 ## 1. `POST /api/v1/documents/ingest`
 
@@ -58,7 +58,7 @@
 
 **Request (`QueryRequest`):**
 - `query_text`
-- `scope`: `{org_id, workspace_id, document_ids?: []}` (from the caller's granted scope — Express fills this from the scope token; FastAPI re-validates it matches the token)
+- `scope`: `{org_id, workspace_id, document_ids?: []}` (from the caller's granted scope — Node.js Backend fills this from the scope token; FastAPI re-validates it matches the token)
 - `route_override`: optional (`structured|rag|hybrid`) for debugging/testing; default is auto-classification
 - `top_k`: optional override for retrieval depth
 - `conversation_id`: optional, for multi-turn context (see note below)
@@ -110,7 +110,7 @@
 
 **Request (`ReportGenerateRequest`):** `scope`, `report_type` (extensible enum, e.g., `production_summary`, `parliamentary_response_draft`, `custom`), `parameters` (mines/subsidiaries/periods/question text depending on `report_type`), `output_format` (`docx|pdf`).
 
-**Response:** `job_id`, `status` (asynchronous — report generation involves multiple retrieval/validation passes; see `12_REPORT_GENERATION.md`). Result retrieved via `GET /api/v1/reports/{job_id}` returning the generated file reference (object storage) plus the full evidence/citation trail used, which Express persists as the report's metadata.
+**Response:** `job_id`, `status` (asynchronous — report generation involves multiple retrieval/validation passes; see `12_REPORT_GENERATION.md`). Result retrieved via `GET /api/v1/reports/{job_id}` returning the generated file reference (object storage) plus the full evidence/citation trail used, which Node.js Backend persists as the report's metadata.
 
 ## 10. Common Error Codes
 

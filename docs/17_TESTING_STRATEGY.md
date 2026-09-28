@@ -25,7 +25,7 @@ No accuracy, latency, or throughput claim is made anywhere in this documentation
 | Qdrant integration | Chunks embedded and indexed are retrievable by a query known to match them; payload filters correctly exclude out-of-scope vectors. |
 | PostgreSQL integration | Job state transitions persist correctly across process restarts (simulate by killing/restarting a worker mid-batch and asserting resume-from-checkpoint behavior). |
 | FastAPI API contract tests | Each endpoint in `08_API_CONTRACTS.md` tested for request validation, auth/scope enforcement (401/403 cases), and success-path response shape. |
-| Express → FastAPI integration | Scope token minted by Express (or a test harness simulating Express) is accepted by FastAPI; an expired or tampered token is rejected. |
+| Node.js Backend → FastAPI integration | Scope token minted by Node.js Backend (or a test harness simulating Node.js Backend) is accepted by FastAPI; an expired or tampered token is rejected. |
 | Report generation end-to-end | Generate a report from fixture data; assert every section either has valid citations or the explicit "no evidence" placeholder — never unsupported prose. |
 
 ## 4. RAG Evaluation — Golden Dataset

@@ -5,7 +5,7 @@ Each phase lists: objective, files/modules to create, dependencies, implementati
 ---
 
 ### Phase 0 — Repository and Architecture Setup
-**Objective:** establish the new FastAPI service as a separate deployable unit alongside the existing Express app, with the reusable-core / domain-specific-layer module boundary from `02_SYSTEM_ARCHITECTURE.md` §7 baked into the folder structure from day one.
+**Objective:** establish the new FastAPI service as a separate deployable unit alongside the existing Node.js Backend app, with the reusable-core / domain-specific-layer module boundary from `02_SYSTEM_ARCHITECTURE.md` §7 baked into the folder structure from day one.
 **Modules:** `ai-service/` repo or subdirectory with `app/core/` (ingestion, ocr, structure, chunking, embeddings, retrieval, rerank, query_router framework, validation framework, jobs) and `app/domain/` (mining-specific extraction schemas, report templates, topic vocab).
 **Dependencies:** none.
 **Tasks:** scaffold FastAPI app, dependency management (e.g., `pyproject.toml`), Docker Compose for local dev (`15_DEPLOYMENT_ARCHITECTURE.md` §6), CI skeleton, structured logging setup, config loading (`19_ENVIRONMENT_VARIABLES.md`).
@@ -113,13 +113,13 @@ Each phase lists: objective, files/modules to create, dependencies, implementati
 **Acceptance criteria:** the three canonical example questions (`07` §3) route correctly and produce correct/cited answers against the golden dataset.
 **Tests:** golden-dataset full evaluation (`17` §4–5).
 
-### Phase 13 — Express Integration
-**Objective:** wire Express to mint scope tokens and call the FastAPI service for ingest/status/query/search/topics/reports.
-**Modules:** Express-side: scope-token minting service, FastAPI client wrapper, new/extended endpoints proxying to FastAPI.
+### Phase 13 — Node.js Backend Integration
+**Objective:** wire Node.js Backend to mint scope tokens and call the FastAPI service for ingest/status/query/search/topics/reports.
+**Modules:** Node.js-side: scope-token minting service, FastAPI client wrapper, new/extended endpoints proxying to FastAPI.
 **Dependencies:** Phases 2, 9, 12 minimally; full feature set ideally complete.
-**Tasks:** **VERIFY AGAINST EXISTING REPOSITORY** for current Express auth/session structure before implementing scope-token minting; implement `AI_SERVICE_API_KEY`/`AI_SCOPE_TOKEN_SECRET` usage on the Express side; add UI-facing endpoints that proxy to the FastAPI contracts in `08`.
-**Acceptance criteria:** an authenticated Express user can upload a document and receive an AI-generated, cited answer through the full stack.
-**Tests:** integration tests per `17` §3 (Express → FastAPI integration); manual E2E smoke test.
+**Tasks:** **VERIFY AGAINST EXISTING REPOSITORY** for current Node.js Backend auth/session structure before implementing scope-token minting; implement `AI_SERVICE_API_KEY`/`AI_SCOPE_TOKEN_SECRET` usage on the Node.js Backend side; add UI-facing endpoints that proxy to the FastAPI contracts in `08`.
+**Acceptance criteria:** an authenticated Node.js Backend user can upload a document and receive an AI-generated, cited answer through the full stack.
+**Tests:** integration tests per `17` §3 (Node.js Backend → FastAPI integration); manual E2E smoke test.
 **Failure modes:** mismatched assumptions about existing folder/workspace schema — resolve via the VERIFY items in `10_MULTI_TENANCY_RBAC.md` §7 before writing integration code.
 
 ### Phase 14 — Topic Analysis
@@ -160,7 +160,7 @@ Each phase lists: objective, files/modules to create, dependencies, implementati
 **Objective:** deploy prototype topology (`15_DEPLOYMENT_ARCHITECTURE.md` §2) and verify end-to-end in the deployed environment.
 **Modules:** deployment configs (Render service definitions, environment variable groups, Docker images).
 **Dependencies:** all prior phases.
-**Tasks:** provision managed Postgres, Qdrant Cloud, object storage; configure environment variables (`19`); deploy Express, FastAPI, worker, frontend; run the full demo script (`01_PRD.md` §7) against the deployed environment.
+**Tasks:** provision managed Postgres, Qdrant Cloud, object storage; configure environment variables (`19`); deploy Node.js Backend, FastAPI, worker, frontend; run the full demo script (`01_PRD.md` §7) against the deployed environment.
 **Acceptance criteria:** all SIH demo success criteria (`01_PRD.md` §7) pass in the deployed environment, not just locally.
 **Tests:** manual E2E demo rehearsal.
 

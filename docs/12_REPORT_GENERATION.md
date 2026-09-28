@@ -26,7 +26,7 @@ ReportGenerateRequest (report_type, parameters, scope)
   → Assemble full report (ordered sections + a consolidated source list/bibliography)
   → Render to DOCX/PDF
   → Persist ReportDraft + citation trail
-  → Notify Express (job completion) → Express persists report metadata & exposes to user
+  → Notify Node.js Backend (job completion) → Node.js Backend persists report metadata & exposes to user
 ```
 
 ## 4. Explicit Non-Negotiable
@@ -51,7 +51,7 @@ Report generation is always asynchronous (`POST /api/v1/reports/generate` return
 
 ## 8. Review & Approval
 
-- Generated reports are drafts by default (`ReportDraft.status`). The `reports.approve` capability (see `10_MULTI_TENANCY_RBAC.md`) gates whether a report is marked as finalized/approved within Express — this approval workflow lives in Express (it is business-process state, not AI-processing state), with FastAPI only ever producing drafts and their evidence trails.
+- Generated reports are drafts by default (`ReportDraft.status`). The `reports.approve` capability (see `10_MULTI_TENANCY_RBAC.md`) gates whether a report is marked as finalized/approved within Node.js Backend — this approval workflow lives in Node.js Backend (it is business-process state, not AI-processing state), with FastAPI only ever producing drafts and their evidence trails.
 
 ## 9. Failure Handling
 

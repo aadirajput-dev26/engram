@@ -38,23 +38,27 @@ The current workflow is manual. This produces:
 
 ## 6. What Already Exists
 
-- A working web portal built primarily on **Express.js**.
+- A working web portal built primarily on **Node.js Backend**.
 - Conceptual structure already in place: `User → Folder/Workspace → Documents → Analytics → Reports → Report Generation → AI Assistant`.
 - An existing open-source RAG implementation is currently wired into the portal. **This dependency is being replaced** by a custom, domain-specific document-intelligence/RAG pipeline, built as a separate service (see `02_SYSTEM_ARCHITECTURE.md`).
-- Exact current internals of the Express app (schema, auth mechanism, folder model, existing RAG integration points) are **not fully known** to this documentation pack. Wherever such details matter, this pack marks them explicitly as:
+- Exact current internals of the Node.js Backend app (schema, auth mechanism, folder model, existing RAG integration points) are **not fully known** to this documentation pack. Wherever such details matter, this pack marks them explicitly as:
 
   > **VERIFY AGAINST EXISTING REPOSITORY**
 
   Coding agents must treat these as open questions to resolve against the actual codebase before implementing, not as license to guess.
 
-## 7. What This Documentation Pack Is
+## 7. Quality Assurance
+
+Comprehensive testing has been performed. Refer to `testing_report.md` and `TEST_RESULTS_35_PAGE_REPORT.md` for detailed test coverage and RAG precision metrics.
+
+## 8. What This Documentation Pack Is
 
 A production-oriented engineering specification, written for both human engineers and AI coding agents (Claude Code, Codex, Google Antigravity, etc.), describing:
 
 - The target system architecture (`02`).
 - A domain-specific, hybrid (structured + unstructured) RAG pipeline (`03`–`07`).
 - API contracts and data models for the new FastAPI AI service (`08`, `09`).
-- Multi-tenancy/RBAC design shared across Express and FastAPI (`10`).
+- Multi-tenancy/RBAC design shared across Node.js Backend and FastAPI (`10`).
 - Citation, validation, report generation, and topic analysis modules (`11`–`13`).
 - Async processing architecture (`14`).
 - Deployment, security, and testing strategy (`15`–`17`).
@@ -64,7 +68,7 @@ A production-oriented engineering specification, written for both human engineer
 ## 8. What This Documentation Pack Is Not
 
 - It is **not** application code.
-- It does **not** rewrite the Express application into another framework.
+- It does **not** rewrite the Node.js Backend application into another framework.
 - It does **not** invent unstated requirements. Where the source problem statement is silent, this pack makes an explicit **architectural decision** and labels it as such (Decision / Alternatives Considered / Reason), rather than presenting it as a mandated requirement.
 - It does **not** assume unlimited infrastructure. Prototype (SIH demo) and production concerns are explicitly separated throughout (see `15_DEPLOYMENT_ARCHITECTURE.md`).
 
@@ -72,8 +76,8 @@ A production-oriented engineering specification, written for both human engineer
 
 These constraints are treated as hard requirements in every subsequent document. Any coding agent must not silently violate them:
 
-1. The existing Express application is the system of record for identity, organization, workspace, permissions, and document access. It is **not** rewritten.
-2. A new, separate **FastAPI AI/Document Intelligence microservice** is introduced. It never independently authenticates end users and never authorizes access beyond the scope Express grants it per request.
+1. The existing Node.js Backend application is the system of record for identity, organization, workspace, permissions, and document access. It is **not** rewritten.
+2. A new, separate **FastAPI AI/Document Intelligence microservice** is introduced. It never independently authenticates end users and never authorizes access beyond the scope Node.js Backend grants it per request.
 3. The RAG design is **hybrid**: structured facts go to PostgreSQL and are queried with parameterized/templated SQL; unstructured narrative goes through chunking, embeddings, keyword search, and reranking.
 4. No fixed-size-only chunking. Chunking must be structure-aware.
 5. Every AI-generated answer must be traceable to source document/page/section/chunk, and the system must prefer "no evidence found" over hallucination.
