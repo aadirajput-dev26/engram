@@ -30,9 +30,9 @@ class ErrorEnvelope(BaseModel):
 
 
 class ScopeFilter(BaseModel):
-    """Scope filter for queries and searches."""
-    org_id: UUID
-    workspace_id: UUID
+    """Scope filter for queries and searches. org_id and workspace_id are automatically resolved from the API key."""
+    org_id: Optional[UUID] = None
+    workspace_id: Optional[UUID] = None
     document_ids: Optional[List[UUID]] = None
     collection_id: Optional[UUID] = None
 

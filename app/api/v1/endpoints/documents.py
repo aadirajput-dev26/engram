@@ -4,10 +4,11 @@ Per docs/08_API_CONTRACTS.md §1-3.
 """
 from __future__ import annotations
 
+import hashlib
+from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, Query, UploadFile, status
-from pydantic import AnyHttpUrl, BaseModel
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,13 +17,17 @@ from app.core.logging import get_logger
 from app.core.security.auth import require_api_key
 from app.db.session import get_db
 from app.models.chunk import Chunk
+from app.models.document import Document
 from app.models.job import ProcessingJob
+from app.schemas.auth import TenantContext
 from app.schemas.document import (
     DocumentChunkItem,
     DocumentChunksResponse,
     DocumentIngestResponse,
-    ProcessingStatusResponse,
+    DocumentListItem,
+    DocumentListResponse,
     ProcessingStageDetail,
+    ProcessingStatusResponse,
     ReprocessRequest,
 )
 from app.services.document_service import ingest_document
@@ -32,38 +37,72 @@ logger = get_logger(__name__)
 router = APIRouter(prefix="/documents", tags=["documents"])
 
 
-class URLIngestRequest(BaseModel):
-    """Request body for URL-based document ingestion."""
-    url: AnyHttpUrl
-    org_id: str
-    workspace_id: str
-    uploaded_by_user_id: str
-    document_id: str | None = None
-    folder_id: str | None = None
-
-
 @router.post("/ingest", response_model=DocumentIngestResponse)
 async def ingest(
-    file: UploadFile = File(...),
-    org_id: str = Form(...),
-    workspace_id: str = Form(...),
-    filename: str = Form(None),
-    declared_mime_type: str = Form("application/pdf"),
-    content_hash: str = Form(""),
-    uploaded_by_user_id: str = Form(...),
-    document_id: str = Form(None),
-    folder_id: str = Form(None),
-    _key: None = Depends(require_api_key),
+    file: Optional[UploadFile] = File(None),
+    url: Optional[str] = Form(None),
+    filename: Optional[str] = Form(None),
+    declared_mime_type: Optional[str] = Form(None),
+    content_hash: Optional[str] = Form(None),
+    document_id: Optional[str] = Form(None),
+    folder_id: Optional[str] = Form(None),
+    tenant: TenantContext = Depends(require_api_key),
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Ingest a new document for processing.
-    Accepts multipart file upload.
+    Unified ingestion endpoint accepting either a file upload or a URL.
+    Tenant context (org_id, workspace_id, user_id) is automatically resolved from the API key.
     """
     settings = get_settings()
 
+    if not file and not url:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "error": {
+                    "code": "MISSING_INPUT",
+                    "message": "Either 'file' or 'url' must be provided for ingestion.",
+                    "details": {},
+                }
+            },
+        )
+
+    # 1. Handle URL Ingestion
+    if url and url.strip():
+        from app.core.parsing.parser_factory import parse_from_url
+
+        url_str = url.strip()
+        logger.info("URL ingest request: %s (workspace=%s)", url_str, tenant.workspace_id)
+
+        try:
+            parsed_doc, detected_mime, default_filename = parse_from_url(url_str)
+        except RuntimeError as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={"error": {"code": "URL_FETCH_FAILED", "message": str(e), "details": {}}},
+            )
+        except Exception as e:
+            logger.exception("URL ingestion failed for %s", url_str)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail={"error": {"code": "PROCESSING_FAILED", "message": str(e), "details": {}}},
+            )
+
+        all_text = "\n\n".join(p.raw_text for p in parsed_doc.pages if p.raw_text)
+        file_data = all_text.encode("utf-8")
+        computed_hash = hashlib.sha256(file_data).hexdigest()
+        effective_filename = filename or default_filename
+        effective_mime = declared_mime_type or detected_mime
+        effective_hash = content_hash or computed_hash
+
+    # 2. Handle File Ingestion
+    else:
+        file_data = await file.read()
+        effective_filename = filename or file.filename or "document.pdf"
+        effective_mime = declared_mime_type or file.content_type or "application/pdf"
+        effective_hash = content_hash or None
+
     # Validate file size
-    file_data = await file.read()
     max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
     if len(file_data) > max_bytes:
         raise HTTPException(
@@ -77,20 +116,18 @@ async def ingest(
             },
         )
 
-    # org_id comes from the form field — Express is trusted to supply correct tenant values
-
     try:
         result = await ingest_document(
             db=db,
             file_data=file_data,
-            filename=filename or file.filename or "document.pdf",
-            org_id=org_id,
-            workspace_id=workspace_id,
-            uploaded_by_user_id=uploaded_by_user_id,
+            filename=effective_filename,
+            org_id=str(tenant.org_id),
+            workspace_id=str(tenant.workspace_id),
+            uploaded_by_user_id=str(tenant.user_id),
             document_id=document_id,
             folder_id=folder_id,
-            content_hash=content_hash or None,
-            declared_mime_type=declared_mime_type,
+            content_hash=effective_hash,
+            declared_mime_type=effective_mime,
         )
         return DocumentIngestResponse(
             document_id=UUID(result["document_id"]),
@@ -111,101 +148,104 @@ async def ingest(
         )
 
 
-@router.post("/ingest-url", response_model=DocumentIngestResponse)
-async def ingest_url(
-    request: URLIngestRequest,
-    _key: None = Depends(require_api_key),
+@router.get("", response_model=DocumentListResponse)
+async def list_documents(
+    skip: int = Query(0, ge=0, description="Offset for pagination"),
+    limit: int = Query(20, ge=1, le=100, description="Max documents to return"),
+    folder_id: Optional[UUID] = Query(None, description="Optional folder/collection filter"),
+    tenant: TenantContext = Depends(require_api_key),
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Ingest a document from a remote URL.
-
-    Supports:
-      - Static HTML web pages (e.g. https://gtwy.ai)
-      - Remotely hosted PDFs (e.g. https://example.com/report.pdf)
-      - Remote images (PNG, JPG, etc.)
-      - Any URL returning a supported MIME type
-
-    Note: JavaScript-rendered SPAs will return minimal text without
-    a headless browser. Plain static HTML is fully supported.
+    List all documents in the caller's workspace with pagination and status.
+    Workspace scope is derived automatically from the API key.
     """
-    from app.core.parsing.parser_factory import parse_from_url
-    from app.core.storage.local_storage import get_storage
-    import hashlib
+    count_query = select(func.count(Document.id)).where(
+        Document.workspace_id == tenant.workspace_id,
+        Document.org_id == tenant.org_id,
+    )
+    if folder_id:
+        count_query = count_query.where(Document.folder_id == folder_id)
 
-    url_str = str(request.url)
-    logger.info("URL ingest request: %s", url_str)
+    total_res = await db.execute(count_query)
+    total = total_res.scalar_one() or 0
 
-    try:
-        # Fetch + parse the URL
-        parsed_doc, mime_type, filename = parse_from_url(url_str)
-    except RuntimeError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"error": {"code": "URL_FETCH_FAILED", "message": str(e), "details": {}}},
-        )
+    stmt = select(Document).where(
+        Document.workspace_id == tenant.workspace_id,
+        Document.org_id == tenant.org_id,
+    )
+    if folder_id:
+        stmt = stmt.where(Document.folder_id == folder_id)
 
-    # Encode the parsed text as bytes for storage (we store the extracted text,
-    # not the raw binary, since we already did the heavy parsing above).
-    # This is intentional: for HTML pages there is no canonical binary to store.
-    all_text = "\n\n".join(p.raw_text for p in parsed_doc.pages if p.raw_text)
-    file_data = all_text.encode("utf-8")
-    content_hash = hashlib.sha256(file_data).hexdigest()
+    stmt = stmt.order_by(Document.created_at.desc()).offset(skip).limit(limit)
+    res = await db.execute(stmt)
+    docs = res.scalars().all()
 
-    settings = get_settings()
-    max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
-    if len(file_data) > max_bytes:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={
-                "error": {
-                    "code": "CONTENT_TOO_LARGE",
-                    "message": f"Fetched content exceeds {settings.MAX_UPLOAD_SIZE_MB}MB.",
-                    "details": {},
-                }
-            },
+    # Query latest job status for these documents
+    doc_ids = [d.id for d in docs]
+    status_map = {}
+    if doc_ids:
+        jobs_stmt = (
+            select(ProcessingJob.document_id, ProcessingJob.overall_status)
+            .where(ProcessingJob.document_id.in_(doc_ids))
+            .order_by(ProcessingJob.created_at.desc())
         )
+        jobs_res = await db.execute(jobs_stmt)
+        for d_id, status_val in jobs_res.all():
+            if d_id not in status_map:
+                status_map[d_id] = status_val
 
-    try:
-        result = await ingest_document(
-            db=db,
-            file_data=file_data,
-            filename=filename,
-            org_id=request.org_id,
-            workspace_id=request.workspace_id,
-            uploaded_by_user_id=request.uploaded_by_user_id,
-            document_id=request.document_id,
-            folder_id=request.folder_id,
-            content_hash=content_hash,
-            declared_mime_type=mime_type,
+    items = [
+        DocumentListItem(
+            id=d.id,
+            filename=d.filename,
+            content_hash=d.content_hash,
+            folder_id=d.folder_id,
+            current_version_id=d.current_version_id,
+            status=status_map.get(d.id, "READY"),
+            created_at=d.created_at,
+            updated_at=d.updated_at,
         )
-        from uuid import UUID
-        return DocumentIngestResponse(
-            document_id=UUID(result["document_id"]),
-            document_version_id=UUID(result["document_version_id"]),
-            job_id=UUID(result["job_id"]),
-            status="QUEUED",
-        )
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"error": {"code": "VALIDATION_ERROR", "message": str(e), "details": {}}},
-        )
-    except Exception as e:
-        logger.exception("URL ingestion failed for %s", url_str)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={"error": {"code": "PROCESSING_FAILED", "message": str(e), "details": {}}},
-        )
+        for d in docs
+    ]
+
+    return DocumentListResponse(
+        documents=items,
+        total=total,
+        skip=skip,
+        limit=limit,
+    )
 
 
 @router.get("/{document_id}/status", response_model=ProcessingStatusResponse)
 async def get_status(
     document_id: UUID,
-    _key: None = Depends(require_api_key),
+    tenant: TenantContext = Depends(require_api_key),
     db: AsyncSession = Depends(get_db),
 ):
     """Poll processing status for a document."""
+    # Ensure document belongs to tenant's workspace
+    doc_res = await db.execute(
+        select(Document).where(
+            Document.id == document_id,
+            Document.workspace_id == tenant.workspace_id,
+        )
+    )
+    doc = doc_res.scalar_one_or_none()
+    if not doc:
+        # Check if job exists for this workspace
+        job_check = await db.execute(
+            select(ProcessingJob).where(
+                ProcessingJob.document_id == document_id,
+                ProcessingJob.workspace_id == tenant.workspace_id,
+            )
+        )
+        if not job_check.scalar_one_or_none():
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"error": {"code": "NOT_FOUND", "message": "Document or processing job not found in this workspace.", "details": {}}},
+            )
+
     result = await db.execute(
         select(ProcessingJob)
         .where(ProcessingJob.document_id == document_id)
@@ -238,7 +278,7 @@ async def get_status(
 async def reprocess(
     document_id: UUID,
     request: ReprocessRequest,
-    _key: None = Depends(require_api_key),
+    tenant: TenantContext = Depends(require_api_key),
     db: AsyncSession = Depends(get_db),
 ):
     """Re-trigger processing for a document."""
@@ -254,17 +294,45 @@ async def get_document_chunks(
     document_id: UUID,
     skip: int = Query(0, ge=0, description="Offset for pagination"),
     limit: int = Query(50, ge=1, le=200, description="Max chunks to return"),
-    _key: None = Depends(require_api_key),
+    tenant: TenantContext = Depends(require_api_key),
     db: AsyncSession = Depends(get_db),
 ):
     """Retrieve all indexed chunks for a specific document with pagination."""
-    count_stmt = select(func.count()).select_from(Chunk).where(Chunk.document_id == document_id)
+    # Ensure document belongs to tenant's workspace
+    doc_res = await db.execute(
+        select(Document).where(
+            Document.id == document_id,
+            Document.workspace_id == tenant.workspace_id,
+        )
+    )
+    doc = doc_res.scalar_one_or_none()
+    if not doc:
+        # Check if chunks exist for this workspace
+        chunk_check = await db.execute(
+            select(Chunk.id).where(
+                Chunk.document_id == document_id,
+                Chunk.workspace_id == tenant.workspace_id,
+            ).limit(1)
+        )
+        if not chunk_check.scalar_one_or_none():
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"error": {"code": "NOT_FOUND", "message": "Document not found in this workspace.", "details": {}}},
+            )
+
+    count_stmt = select(func.count()).select_from(Chunk).where(
+        Chunk.document_id == document_id,
+        Chunk.workspace_id == tenant.workspace_id,
+    )
     count_res = await db.execute(count_stmt)
     total = count_res.scalar_one() or 0
 
     stmt = (
         select(Chunk)
-        .where(Chunk.document_id == document_id)
+        .where(
+            Chunk.document_id == document_id,
+            Chunk.workspace_id == tenant.workspace_id,
+        )
         .order_by(Chunk.page_start.asc(), Chunk.char_offset_start.asc())
         .offset(skip)
         .limit(limit)

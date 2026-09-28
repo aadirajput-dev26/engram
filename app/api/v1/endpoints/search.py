@@ -17,6 +17,7 @@ from app.core.retrieval.keyword import keyword_search
 from app.core.retrieval.semantic import semantic_search
 from app.core.security.auth import require_api_key
 from app.db.session import get_db
+from app.schemas.auth import TenantContext
 from app.schemas.common import RetrievalResult
 from app.schemas.query import SearchRequest, SearchResponse
 
@@ -28,27 +29,29 @@ router = APIRouter(prefix="/search", tags=["search"])
 @router.post("", response_model=SearchResponse)
 async def search(
     request: SearchRequest,
-    _key: None = Depends(require_api_key),
+    tenant: TenantContext = Depends(require_api_key),
     db: AsyncSession = Depends(get_db),
 ):
     """
     Retrieval-only search — returns ranked chunks without LLM generation.
-    Useful for search UI and retrieval debugging.
+    Tenant scope is resolved from the API key.
     """
     start_time = time.perf_counter()
     settings = get_settings()
     top_k = request.top_k or settings.RETRIEVAL_TOP_K_FINAL
-    document_ids = [str(d) for d in request.scope.document_ids] if request.scope.document_ids else None
-    
-    if request.scope.collection_id:
-        from uuid import UUID
+
+    doc_ids_list = request.document_ids or (request.scope.document_ids if request.scope and request.scope.document_ids else None)
+    document_ids = [str(d) for d in doc_ids_list] if doc_ids_list else None
+
+    col_id = request.collection_id or (request.scope.collection_id if request.scope and request.scope.collection_id else None)
+    if col_id:
         from sqlalchemy import select
         from app.models.document import Document
-        
+
         col_stmt = select(Document.id).where(
-            Document.folder_id == request.scope.collection_id,
-            Document.org_id == request.scope.org_id,
-            Document.workspace_id == request.scope.workspace_id,
+            Document.folder_id == col_id,
+            Document.org_id == tenant.org_id,
+            Document.workspace_id == tenant.workspace_id,
         )
         col_res = await db.execute(col_stmt)
         col_doc_ids = [str(uid) for uid in col_res.scalars().all()]
@@ -60,8 +63,8 @@ async def search(
     # Semantic search
     semantic_results = semantic_search(
         query_text=request.query_text,
-        org_id=str(request.scope.org_id),
-        workspace_id=str(request.scope.workspace_id),
+        org_id=str(tenant.org_id),
+        workspace_id=str(tenant.workspace_id),
         top_n=settings.RETRIEVAL_TOP_N_SEMANTIC,
         document_ids=document_ids,
     )
@@ -70,8 +73,8 @@ async def search(
     keyword_results = await keyword_search(
         db=db,
         query_text=request.query_text,
-        org_id=str(request.scope.org_id),
-        workspace_id=str(request.scope.workspace_id),
+        org_id=str(tenant.org_id),
+        workspace_id=str(tenant.workspace_id),
         top_n=settings.RETRIEVAL_TOP_N_KEYWORD,
         document_ids=document_ids,
     )

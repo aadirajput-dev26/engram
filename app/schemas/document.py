@@ -16,15 +16,13 @@ from pydantic import BaseModel, Field
 
 class DocumentIngestRequest(BaseModel):
     """Request to ingest a new document or new version."""
-    org_id: UUID
-    workspace_id: UUID
-    folder_id: Optional[UUID] = None
-    document_id: Optional[UUID] = None  # if provided, this is a new version
     filename: str
     declared_mime_type: str = "application/pdf"
-    content_hash: str
-    uploaded_by_user_id: UUID
+    content_hash: Optional[str] = None
+    folder_id: Optional[UUID] = None
+    document_id: Optional[UUID] = None  # if provided, this is a new version
     file_ref: Optional[str] = None  # object storage key (for large files)
+    url: Optional[str] = None
 
 
 class DocumentIngestResponse(BaseModel):
@@ -33,6 +31,31 @@ class DocumentIngestResponse(BaseModel):
     document_version_id: UUID
     job_id: UUID
     status: Literal["QUEUED", "ALREADY_PROCESSED"]
+
+
+# --- Document List ---
+
+
+class DocumentListItem(BaseModel):
+    """Summary representation of an ingested document."""
+    id: UUID
+    filename: str
+    content_hash: str
+    folder_id: Optional[UUID] = None
+    current_version_id: Optional[UUID] = None
+    status: Optional[str] = "READY"
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class DocumentListResponse(BaseModel):
+    """Paginated list of documents."""
+    documents: List[DocumentListItem]
+    total: int
+    skip: int
+    limit: int
 
 
 # --- Status ---

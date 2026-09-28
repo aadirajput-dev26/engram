@@ -18,7 +18,9 @@ from app.schemas.common import Citation, RetrievalResult, ScopeFilter
 class QueryRequest(BaseModel):
     """AI-based query request."""
     query_text: str
-    scope: ScopeFilter
+    scope: Optional[ScopeFilter] = None
+    document_ids: Optional[List[UUID]] = None
+    collection_id: Optional[UUID] = None
     route_override: Optional[Literal["structured", "rag", "hybrid"]] = None
     top_k: Optional[int] = None
     conversation_id: Optional[str] = None
@@ -52,7 +54,9 @@ class QueryResponse(BaseModel):
 class SearchRequest(BaseModel):
     """Retrieval-only search request."""
     query_text: str
-    scope: ScopeFilter
+    scope: Optional[ScopeFilter] = None
+    document_ids: Optional[List[UUID]] = None
+    collection_id: Optional[UUID] = None
     top_k: Optional[int] = None
     filters: Optional[Dict[str, Any]] = None
 

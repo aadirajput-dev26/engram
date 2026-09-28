@@ -57,6 +57,35 @@
 
 ## 2. Document Status & Lifecycle APIs
 
+### `GET /api/v1/documents`
+**Purpose:** List all ingested documents within the caller's workspace with pagination, status, and metadata. Workspace scope is derived automatically from the API key.
+
+**Query Parameters:**
+- `skip`: Pagination offset (integer, default: `0`, ge: `0`).
+- `limit`: Page limit (integer, default: `20`, max: `100`).
+- `folder_id`: (UUID, optional) Optional filter by collection / folder.
+
+**Response (`200 OK`):**
+```json
+{
+  "documents": [
+    {
+      "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "filename": "annual_report_2024.pdf",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "folder_id": null,
+      "current_version_id": "a1b2c3d4-0000-1111-2222-333344445555",
+      "status": "READY",
+      "created_at": "2026-09-29T01:00:00Z",
+      "updated_at": "2026-09-29T01:05:00Z"
+    }
+  ],
+  "total": 1,
+  "skip": 0,
+  "limit": 20
+}
+```
+
 ### `GET /api/v1/documents/{document_id}/status`
 **Purpose:** Poll processing progress and stage-level execution metrics for an ingested document.
 
