@@ -30,6 +30,17 @@ class Settings(BaseSettings):
         ),
     )
 
+    # --- 1b. JWT (dashboard auth) ---
+    JWT_SECRET_KEY: str = Field(
+        default="engram_jwt_secret_key_change_in_production_998877665544332211",
+        description="Secret key for signing/verifying JWTs. Use a long random string in production.",
+    )
+    JWT_ALGORITHM: str = Field(default="HS256", description="JWT signing algorithm.")
+    JWT_EXPIRE_MINUTES: int = Field(
+        default=60 * 24 * 7,  # 7 days
+        description="JWT access token lifetime in minutes.",
+    )
+
     # --- 2. Database ---
     AI_DATABASE_URL: str = Field(
         default="postgresql+asyncpg://postgres:postgres@localhost:5432/rag_ai",

@@ -9,6 +9,8 @@ services:
     startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 2
 
     envVars:
+      - key: JWT_SECRET_KEY
+        value: engram_jwt_secret_key_change_in_production_998877665544332211
       - key: SERVICE_ENV
         value: production
       - key: AI_SERVICE_API_KEY
