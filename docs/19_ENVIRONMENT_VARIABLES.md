@@ -1,102 +1,105 @@
-# 19 — Environment Variables
+# 19 — Environment Variables & Configuration
 
-All values below are variable **names and semantics**. No real secret values are ever placed in this file, in `.env.example`, or in source control.
+This document specifies the environment variables utilized by the RAG Pipeline microservice. All configuration is centralized through Pydantic Settings (`app/core/config.py`).
 
-## 1. Service Identity / Networking
+> **Security Note:** Never commit actual secrets or production keys to version control. Use `.env` for local testing and secure environment vaults in production.
 
-| Variable | Used by | Description |
+---
+
+## 1. Service Identity & Networking
+
+| Variable | Default Value | Description |
 |---|---|---|
-| `SERVICE_ENV` | Both | `local \| staging \| production` |
-| `AI_SERVICE_BASE_URL` | Node.js Backend | Base URL Node.js Backend uses to reach the FastAPI service |
-| `AI_SERVICE_API_KEY` | Both | Shared API key sent by Node.js Backend as X-Api-Key header (see `16_SECURITY.md` §3) |
+| `SERVICE_ENV` | `local` | Execution environment (`local`, `staging`, `production`). |
+| `AI_SERVICE_API_KEY` | *(Required)* | Master service API key used for internal/admin verification or fallback access. |
+| `JWT_SECRET_KEY` | *(Required in prod)* | Secret key for signing and verifying JSON Web Tokens (dashboard and session authentication). |
+| `JWT_ALGORITHM` | `HS256` | JWT signature algorithm. |
+| `JWT_EXPIRE_MINUTES` | `10080` (7 days) | JWT expiration lifetime in minutes. |
 
-## 2. Database
+---
 
-| Variable | Used by | Description |
+## 2. Relational Database (PostgreSQL)
+
+| Variable | Default Value | Description |
 |---|---|---|
-| `BACKEND_DATABASE_URL` | Node.js Backend | Node.js Backend-owned PostgreSQL schema connection string — **VERIFY AGAINST EXISTING REPOSITORY** for current variable name |
-| `AI_DATABASE_URL` | FastAPI | AI-owned PostgreSQL schema connection string (may point at the same physical instance, different schema — see `02_SYSTEM_ARCHITECTURE.md` §1) |
+| `AI_DATABASE_URL` | `postgresql+asyncpg://postgres:postgres@localhost:5432/rag_ai` | Asynchronous PostgreSQL connection string using `asyncpg`. Automatically converts standard `postgresql://` URIs if provided. |
 
-## 3. Object Storage
+---
 
-| Variable | Used by | Description |
+## 3. Object & Document Storage
+
+| Variable | Default Value | Description |
 |---|---|---|
-| `OBJECT_STORAGE_ENDPOINT` | FastAPI (+ Node.js Backend if it generates pre-signed upload URLs) | S3-compatible endpoint URL |
-| `OBJECT_STORAGE_BUCKET` | Both | Bucket name for raw documents and processing intermediates |
-| `OBJECT_STORAGE_ACCESS_KEY` | Both | Access key |
-| `OBJECT_STORAGE_SECRET_KEY` | Both | Secret key |
-| `OBJECT_STORAGE_REGION` | Both | Region, if applicable to the provider |
+| `STORAGE_BACKEND` | `local` | Target storage provider: `local` (filesystem) or `s3` (S3-compatible object store). |
+| `STORAGE_LOCAL_DIR` | `./storage` | Filesystem path for uploaded artifacts when `STORAGE_BACKEND=local`. |
+| `OBJECT_STORAGE_ENDPOINT` | `None` | S3-compatible API endpoint URL (e.g., AWS S3, Cloudflare R2, MinIO). |
+| `OBJECT_STORAGE_BUCKET` | `None` | Bucket identifier for raw documents and processing artifacts. |
+| `OBJECT_STORAGE_ACCESS_KEY` | `None` | Access key credential for object storage. |
+| `OBJECT_STORAGE_SECRET_KEY` | `None` | Secret key credential for object storage. |
+| `OBJECT_STORAGE_REGION` | `us-east-1` | Cloud region for object storage bucket. |
 
-## 4. Vector Database
+---
 
-| Variable | Used by | Description |
+## 4. Vector Database (Qdrant)
+
+| Variable | Default Value | Description |
 |---|---|---|
-| `QDRANT_URL` | FastAPI | Qdrant endpoint (cloud or self-hosted) |
-| `QDRANT_API_KEY` | FastAPI | Qdrant API key |
-| `QDRANT_COLLECTION_NAME` | FastAPI | Single shared collection name (see `05_RETRIEVAL_AND_RERANKING.md` §3 decision) |
+| `QDRANT_URL` | `http://localhost:6333` | Endpoint URL for the Qdrant vector database. |
+| `QDRANT_API_KEY` | `None` | API key for managed Qdrant Cloud or secured clusters. |
+| `QDRANT_COLLECTION_NAME` | `rag_chunks` | Primary collection name housing document chunk embeddings. |
 
-## 5. LLM Provider (configurable, OpenAI-compatible)
+---
 
-| Variable | Used by | Description |
+## 5. Large Language Model (OpenAI-Compatible Spec)
+
+| Variable | Default Value | Description |
 |---|---|---|
-| `LLM_BASE_URL` | FastAPI | OpenAI-compatible base URL (e.g., GTWY endpoint, OpenAI, or local Ollama for dev) |
-| `LLM_API_KEY` | FastAPI | API key for the configured provider |
-| `LLM_MODEL_NAME` | FastAPI | Model identifier (e.g., the GPT-5 nano model string as exposed by the provider) |
-| `LLM_MAX_TOKENS` | FastAPI | Default max output tokens per generation call |
-| `LLM_TEMPERATURE` | FastAPI | Default temperature (recommend low, e.g., 0–0.2, for factual generation tasks) |
-| `LLM_REQUEST_TIMEOUT_SECONDS` | FastAPI | Timeout for LLM API calls |
+| `LLM_BASE_URL` | `https://api.openai.com/v1` | OpenAI-compatible endpoint URL (OpenAI, Azure, vLLM, Ollama). |
+| `LLM_API_KEY` | `None` | Authentication key for the target LLM provider. |
+| `LLM_MODEL_NAME` | `gpt-4o-mini` | Model identifier string dispatched in inference requests. |
+| `LLM_MAX_TOKENS` | `1024` | Default token ceiling reserved for generated answers. |
+| `LLM_TEMPERATURE` | `0.1` | Sampling temperature (recommend low values for grounded synthesis). |
+| `LLM_REQUEST_TIMEOUT_SECONDS` | `45` | Maximum timeout in seconds for LLM generation calls. |
 
-> The LLM provider must never be hard-coded in application code; every LLM client call goes through a single configurable client built from these variables (`02_SYSTEM_ARCHITECTURE.md` §... / `09_DATA_MODELS.md` generation module).
+---
 
-## 6. Embeddings & Reranking (self-hosted, in-process)
+## 6. Embedding & Cross-Encoder Models
 
-| Variable | Used by | Description |
+| Variable | Default Value | Description |
 |---|---|---|
-| `EMBEDDING_MODEL_NAME` | FastAPI | sentence-transformers model identifier (default suggested: `BAAI/bge-base-en-v1.5`) |
-| `EMBEDDING_BATCH_SIZE` | FastAPI | Batch size for embedding computation |
-| `RERANKER_MODEL_NAME` | FastAPI | Cross-encoder reranker model identifier (default suggested: `BAAI/bge-reranker-base`) |
+| `EMBEDDING_MODEL_NAME` | `BAAI/bge-base-en-v1.5` | Sentence-Transformers model used for dense vector embeddings. |
+| `EMBEDDING_BATCH_SIZE` | `32` | Batch size for vector embedding computation. |
+| `RERANKER_MODEL_NAME` | `BAAI/bge-reranker-base` | Cross-encoder model used for deep query-passage reranking. |
 
-## 7. OCR / Document Processing
+---
 
-| Variable | Used by | Description |
+## 7. OCR & Ingestion Pipeline Settings
+
+| Variable | Default Value | Description |
 |---|---|---|
-| `OCR_ENGINE` | FastAPI | `paddleocr` (default) — configurable in case of future engine swap |
-| `OCR_RENDER_DPI` | FastAPI | Page render DPI for OCR (default suggested 200–300) |
-| `MAX_UPLOAD_SIZE_MB` | Both | Max direct-upload file size before requiring pre-signed/object-storage-first upload |
-| `PAGE_BATCH_SIZE` | FastAPI | Number of pages processed per batch/task (`04_DOCUMENT_PROCESSING_SPEC.md` §10) |
-| `MAX_STAGE_RETRY_COUNT` | FastAPI | Max retries per failed stage-batch before marking permanently `FAILED` |
+| `OCR_ENGINE` | `paddleocr` | OCR engine implementation (`paddleocr` or `tesseract`). |
+| `OCR_RENDER_DPI` | `200` | Resolution for page rasterization prior to OCR. |
+| `MAX_UPLOAD_SIZE_MB` | `50` | Maximum direct multipart file upload ceiling in megabytes. |
+| `PAGE_BATCH_SIZE` | `10` | Number of document pages processed per worker checkpoint batch. |
+| `MAX_STAGE_RETRY_COUNT` | `3` | Maximum retry attempts for a failed page-batch task before poison-pill isolation. |
 
-## 8. Retrieval Tuning
+---
 
-| Variable | Used by | Description |
+## 8. Hybrid Retrieval & Rank Fusion Tuning
+
+| Variable | Default Value | Description |
 |---|---|---|
-| `RETRIEVAL_TOP_N_SEMANTIC` | FastAPI | Semantic candidates before fusion (default suggested 30) |
-| `RETRIEVAL_TOP_N_KEYWORD` | FastAPI | Keyword candidates before fusion (default suggested 30) |
-| `RETRIEVAL_TOP_M_FUSED` | FastAPI | Fused candidates before reranking (default suggested 40) |
-| `RETRIEVAL_TOP_K_FINAL` | FastAPI | Final chunks passed to context selection (default suggested 8–12) |
-| `RRF_K_CONSTANT` | FastAPI | RRF fusion constant (default suggested 60) |
+| `RETRIEVAL_TOP_N_SEMANTIC` | `30` | Top candidates retrieved from dense vector search in Qdrant. |
+| `RETRIEVAL_TOP_N_KEYWORD` | `30` | Top candidates retrieved from PostgreSQL lexical Full-Text Search. |
+| `RETRIEVAL_TOP_M_FUSED` | `40` | Total candidates retained following Reciprocal Rank Fusion (RRF). |
+| `RETRIEVAL_TOP_K_FINAL` | `8` | Final reranked context chunks injected into the synthesis prompt. |
+| `RRF_K_CONSTANT` | `60` | Rank dampening constant $k$ applied during Reciprocal Rank Fusion. |
 
-## 9. Topic Analysis
+---
 
-| Variable | Used by | Description |
+## 9. Background Worker Queue
+
+| Variable | Default Value | Description |
 |---|---|---|
-| `TOPIC_MODEL_BACKEND` | FastAPI | `lda` (default) or `bertopic` (see `13_TOPIC_ANALYSIS.md` §3) |
-| `TOPIC_ASYNC_THRESHOLD_DOCS` | FastAPI | Document count above which topic analysis always runs async (default suggested 20) |
-
-## 10. Job Queue / Workers
-
-| Variable | Used by | Description |
-|---|---|---|
-| `WORKER_POLL_INTERVAL_SECONDS` | FastAPI worker | Polling interval for the Postgres-backed job queue |
-| `WORKER_CONCURRENCY` | FastAPI worker | Number of concurrent tasks a single worker process handles |
-
-## 11. Local Development Only
-
-| Variable | Used by | Description |
-|---|---|---|
-| `USE_LOCAL_OLLAMA` | FastAPI (local dev) | If true, `LLM_BASE_URL` points at a local Ollama instance — never set in staging/production configuration |
-
-## 12. Guidance for Coding Agents
-
-- Every new external dependency (provider, model, threshold) introduced during implementation must be exposed as an environment variable here, with a corresponding entry added to this document and to `.env.example` — never hard-coded as a literal in application code.
-- Secrets (`*_API_KEY`, `*_SECRET_KEY`, `*_SECRET`) must never have real values committed anywhere in the repository.
+| `WORKER_POLL_INTERVAL_SECONDS` | `2.0` | Polling frequency for the PostgreSQL-backed task queue. |
+| `WORKER_CONCURRENCY` | `2` | Number of concurrent processing tasks per worker instance. |

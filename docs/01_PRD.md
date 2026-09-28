@@ -2,101 +2,126 @@
 
 ## 1. Product Summary
 
-A multi-organization platform that lets CMPDI, CIL subsidiaries, and Ministry of Coal users upload, process, search, query, and generate reports from geological/mining/production documents, with an AI layer that answers questions with cited, verifiable evidence and distinguishes between exact structured figures and narrative/contextual information.
+The **RAG Pipeline Microservice** is a high-performance, enterprise-grade "RAG-as-a-Service" infrastructure designed to power document intelligence, semantic search, structured data extraction, and grounded generative synthesis across multi-tenant enterprise environments.
 
-## 2. Users and Roles
+The microservice enables client applications to ingest complex, heterogenous business documents (including digital PDFs, scanned documents, spreadsheets, Word files, and images), analyze their visual and syntactic structure, index them into hybrid vector and relational stores, and execute precision queries backed by verifiable, page-level citations.
 
-| Role | Description |
-|---|---|
-| SUPER_ADMIN | Platform-level administrator (spans organizations). Manages orgs, global settings. |
-| ORG_ADMIN | Administers a single organization (e.g., a specific CIL subsidiary or CMPDI). Manages workspaces, members, permissions within the org. |
-| MEMBER | Regular user within an org/workspace. Uploads documents, runs queries, generates reports (subject to capability grants). |
-| VIEWER | Read-only access to documents, analytics, and reports within their scope. |
+---
 
-See `10_MULTI_TENANCY_RBAC.md` for the full capability model.
+## 2. Multi-Tenancy & Authorization Model
 
-## 3. Primary User Journeys
+The RAG Pipeline operates strictly as an infrastructure microservice. User identity management, billing, and front-end authorization are managed upstream by consuming Client Applications. The microservice enforces strict data isolation through hierarchical scoping:
 
-### 3.1 Document Ingestion
-A MEMBER uploads a scanned or digital PDF/DOCX/XLSX/CSV/image into a workspace folder. The system classifies, OCRs (if needed), extracts structure, extracts structured facts, chunks narrative content, embeds, and indexes it — asynchronously, with visible status.
+| Scope Level | Description | Isolation Guarantee |
+|---|---|---|
+| **Organization (`org_id`)** | Top-level enterprise tenant. | Complete cryptographic and relational database separation. |
+| **Workspace (`workspace_id`)** | Functional project, department, or team container within an organization. | Vector collections, document catalogs, and database rows are partitioned by workspace. |
+| **API Key (`x-api-key`)** | Scoped cryptographic credential passed in request headers. | The service validates and automatically resolves the API key to its authorized `org_id` and `workspace_id`. |
 
-### 3.2 Ask a Question (AI Assistant)
-A user asks a natural-language question scoped to a workspace or document set. The system determines whether the question needs a structured query, a RAG (retrieval-augmented) answer, or both, and returns an answer with citations (document, page, section) or explicitly states no evidence was found.
+---
 
-### 3.3 Analytics / Topic Identification
-A user selects a document collection and requests topic/keyword analysis. The system runs (asynchronously, for large collections) TF-IDF/keyword extraction, topic modeling, named entity extraction, and generates word-cloud-ready output.
+## 3. Primary Workflows & Capabilities
 
-### 3.4 Report Generation
-A user requests a report (e.g., "production summary for Mine X, 2020–2024" or a parliamentary-question response draft). The system retrieves the relevant structured data and narrative evidence, drafts report sections, attaches sources to every factual claim, and produces a DOCX/PDF.
+### 3.1 Asynchronous Document Ingestion & Processing
+A client application submits a document (digital PDF, scanned PDF, DOCX, XLSX, CSV, image) to the ingestion endpoint. The microservice:
+1. Validates the file signature and stores the raw binary in object storage.
+2. Dispatches an asynchronous processing job.
+3. Automatically classifies the document format and applies appropriate extraction (native parsing or OCR).
+4. Dissects layout structure (pages, sections, tables, paragraphs).
+5. Splits content into the Dual-Track pipeline: structured tabular facts into PostgreSQL, and semantic narrative chunks into Qdrant and Postgres Full-Text Search.
+6. Updates processing job status to `READY` with comprehensive extraction metrics.
+
+### 3.2 Grounded AI Query & Question-Answering
+A client application submits a natural language question scoped by API key to an authorized workspace or specific document subset:
+1. The service analyzes query intent to classify it as `STRUCTURED`, `UNSTRUCTURED`, or `HYBRID`.
+2. Structured queries execute parameterized SQL against normalized fact tables.
+3. Unstructured queries perform hybrid dense vector retrieval (Qdrant) and lexical keyword search (PostgreSQL FTS), fused via Reciprocal Rank Fusion (RRF) and reranked via a cross-encoder model.
+4. Generative synthesis produces a factual answer constrained strictly to retrieved context.
+5. Every statement is validated and stamped with exact provenance citations (document, page, section, chunk). If insufficient evidence is found, the service returns `NO_EVIDENCE_FOUND`.
+
+### 3.3 Corpus Analytics & Topic Extraction
+A client application requests lexical and thematic analysis across a selected set of documents:
+- Extracts high-frequency keywords, key phrases, and domain entities.
+- Computes TF-IDF distributions and cluster topics.
+- Generates data formatted for topic visualization and word-cloud generation.
+
+### 3.4 Automated Document & Report Synthesis
+A client application requests a structured analytical report covering specific topics or entities:
+- Gathers relevant structured metrics and supporting narrative evidence across the corpus.
+- Drafts structured report sections adhering to predefined templates.
+- Enforces strict evidence citation for all included metrics and claims.
+- Exports structured report objects or downloadable artifacts.
+
+---
 
 ## 4. Functional Requirements
 
-### FR-1 Document Management (Node.js Backend, existing + extended)
-- Upload documents into Organization → Workspace → Folder hierarchy.
-- Track document metadata, version, and processing status.
-- Enforce access control at document/workspace/organization level.
+### FR-1: Ingestion & Document Processing Engine
+- **Unified Ingestion:** Provide robust endpoints accepting single and batched uploads with MIME type detection and file validation.
+- **Multi-Format Support:** Handle digital PDFs, scanned PDFs (OCR via Tesseract/vision models), DOCX, XLSX, CSV, and image files.
+- **Hierarchical Layout Parsing:** Construct a tree representing document structure: Document → Pages → Sections → Subsections → Paragraphs / Tables.
+- **Asynchronous & Resumable Execution:** Employ worker-driven job execution with status tracking (`PENDING`, `PROCESSING`, `READY`, `FAILED`) capable of processing large documents without memory exhaustion.
 
-### FR-2 Document Intelligence Processing (FastAPI, new)
-- Ingest and validate files (digital PDF, scanned PDF, DOCX, XLSX, CSV, images).
-- OCR scanned content; parse digital content.
-- Understand document structure (sections/subsections/tables/pages) using a PageIndex-style hierarchical approach where applicable.
-- Extract structured facts (production, target, achievement, year, mine, subsidiary, coal grade, dispatch, quantity, etc.) into PostgreSQL.
-- Chunk narrative content in a structure-aware manner; embed and index chunks (vector + keyword).
-- Support asynchronous, resumable, page-batched processing for arbitrarily large files.
+### FR-2: Dual-Track Indexing Architecture
+- **Structured Track:** Extract tabular records, financial/operational KPIs, and key-value pairs into typed relational tables with page coordinates.
+- **Unstructured Track:** Chunk narrative prose using layout-aware boundary preservation (avoiding splitting sentences across arbitrary character counts).
+- **Hybrid Vector & Lexical Indexing:** Compute dense embeddings for semantic search in Qdrant; index text with language-specific stems in PostgreSQL for exact lexical search.
 
-### FR-3 Query & Retrieval
-- Route each query to structured / RAG / hybrid handling.
-- Structured queries execute against PostgreSQL via parameterized, templated queries only — never free-form LLM-generated SQL.
-- RAG queries use hybrid (semantic + keyword) retrieval with reranking, scoped to the caller's authorized documents.
-- All AI answers include citations (document/page/section/chunk) or explicitly state no evidence was found.
+### FR-3: Intelligent Retrieval & Reranking
+- **Query Classification:** Automatically detect whether a query is computational/tabular, semantic/narrative, or a hybrid combination.
+- **Hybrid Retrieval:** Retrieve candidate sets from both dense vector space and full-text keyword indices.
+- **Rank Fusion & Reranking:** Combine retrieval streams using Reciprocal Rank Fusion (RRF) and apply cross-encoder reranking to produce optimal context windows.
 
-### FR-4 Report Generation
-- Generate structured report drafts combining retrieved structured data and cited narrative evidence.
-- Never allow the LLM to generate factual report content purely from parametric memory without attached evidence.
-- Export to DOCX/PDF.
+### FR-4: Verifiable Synthesis & Hallucination Prevention
+- **Context-Bound LLM Inference:** Strictly instruct the LLM provider to answer solely based on provided evidence chunks.
+- **Automated Claim Verification:** Post-process generated answers to ensure every factual and numerical claim maps directly to a cited source chunk.
+- **Citation Metadata:** Include full source attribution in API responses: document ID, document title, page number, section title, and verbatim excerpt.
+- **Graceful Failure:** Return explicit `NO_EVIDENCE_FOUND` sentinels rather than speculative hallucinations when evidence is absent.
 
-### FR-5 Topic & Word-Cloud Analysis
-- Run keyword frequency / TF-IDF / topic modeling / named entity extraction over a selected document collection.
-- Support asynchronous execution for large collections.
-- Produce word-cloud-ready frequency output and topic summaries.
+### FR-5: Document Corpus Analytics
+- Provide endpoints to compute keyword frequencies, TF-IDF scores, and thematic clusters across designated document subsets.
+- Support asynchronous execution for corpus-wide analytical operations.
 
-### FR-6 Multi-Tenancy & RBAC
-- Generic Organization model (no hard-coded subsidiaries).
-- Organization → Workspace → Folder → Document hierarchy.
-- Role-based + capability-based permission enforcement, consistently applied in both Node.js Backend and the scope passed to FastAPI.
+### FR-6: Multi-Tenant Data Isolation
+- Enforce strict database-level and vector-level filtering on all operations using resolved `workspace_id` and `org_id` context.
+- Prevent cross-tenant data leaks across all query and ingestion pipelines.
 
-### FR-7 Traceability & Validation
-- Every structured fact stores document/page/section provenance.
-- Every RAG answer stores the retrieved evidence used to justify each generated claim.
-- Numerical claims are checked for consistency against structured data or explicit source text before being returned.
+---
 
 ## 5. Non-Functional Requirements
 
-| Category | Requirement |
+| Metric / Dimension | Specification |
 |---|---|
-| Scalability | Processing workers must scale independently of the API layer. Architecture must not assume documents fit in memory. |
-| Portability | LLM provider configurable via environment variables (OpenAI-compatible). No vendor lock-in in code. |
-| Security | Tenant/workspace/document isolation enforced at every layer; FastAPI never bypasses Node.js Backend-issued authorization scope. |
-| Traceability | No unsupported factual claims; system prefers explicit "no evidence found" responses. |
-| Observability | Structured logging across both services; job/processing status is queryable at every stage. |
-| Reusability | The AI service's core RAG/document-intelligence engine must not hard-code CMPDI/CIL-specific concepts into its architecture (domain-specific *content handling*, e.g., production/mine/grade extraction schemas, is expected and acceptable; hard-coded organization names/IDs are not). |
+| **Architecture** | Stateless, horizontally scalable FastAPI microservice. |
+| **LLM Provider Portability** | Configurable via environment variables adhering to OpenAI-compatible API standards (supporting OpenAI, Azure OpenAI, Ollama, vLLM, Anthropic proxies). |
+| **Data Isolation** | Multi-tenant isolation enforced at the data layer for every query and storage operation. |
+| **Resilience & Scalability** | Background processing offloaded to async job runners; streaming file handling to guarantee low memory footprints. |
+| **Accuracy & Traceability** | 100% of generated factual assertions must be traceable to cited evidence; unsupported claims are eliminated or flagged. |
+| **Observability** | Structured JSON logging, detailed job stage tracking, and latency metrics across ingestion and retrieval pipelines. |
 
-## 6. Out of Scope (for the initial implementation)
+---
 
-- Full enterprise SSO/identity federation (VERIFY AGAINST EXISTING REPOSITORY for current auth mechanism; not redesigned here).
-- Real-time collaborative document editing.
-- Mobile-native applications.
-- Processing the full 267 MB reference document during the SIH demo (a representative 8–10 MB document is used instead — see `22` demo strategy in `18_IMPLEMENTATION_ROADMAP.md` and `15_DEPLOYMENT_ARCHITECTURE.md`).
-- Building a generic, domain-agnostic SaaS RAG product. This is domain-specific document intelligence with reusable *infrastructure*, not a generic platform.
+## 6. Scope Boundaries
 
-## 7. Success Criteria (Prototype / SIH Demo)
+### In Scope (Microservice Responsibilities):
+- Document ingestion, validation, OCR, layout extraction, and structure parsing.
+- Dual-track indexing (PostgreSQL structured facts + Qdrant vectors + PostgreSQL FTS).
+- Query routing, hybrid retrieval, reranking, generative synthesis, and citation verification.
+- Topic analysis and report generation logic.
+- Asynchronous task lifecycle management.
 
-1. Upload and asynchronously process an 8–10 MB data-heavy report end to end (UPLOADED → READY).
-2. Answer a structured numeric question correctly and cite the structured source.
-3. Answer a narrative "why" question via RAG with page-level citations.
-4. Answer a hybrid question combining structured figures and narrative explanation.
-5. Generate a word cloud / topic summary for a document collection.
-6. Generate a short report with attached sources.
-7. Demonstrate that access is scoped — a user cannot query documents outside their authorized workspace.
+### Out of Scope (Client Application Responsibilities):
+- End-user authentication (SSO, OAuth, password management).
+- User interface presentation (web dashboards, mobile interfaces).
+- Billing, subscription tiers, and organizational user management.
+- Direct interaction with vector databases or internal LLM keys.
 
-Success is evaluated against the golden dataset defined in `17_TESTING_STRATEGY.md`, not against unverified claims of accuracy.
+---
+
+## 7. Verification & Acceptance Criteria
+
+1. **Ingestion Reliability:** Successfully upload and process complex digital and scanned documents through all stages to `READY` state without data corruption.
+2. **Retrieval Precision:** Demonstrate that hybrid search (vector + keyword + reranking) retrieves exact target evidence with higher precision than single-mode vector search.
+3. **Citation Integrity:** Ensure every response to an evidence-seeking query contains valid, verifiable page and chunk references.
+4. **Tenant Isolation:** Verify that requests using an API key for Workspace A cannot retrieve or search documents belonging to Workspace B under any circumstances.
+5. **Hallucination Rejection:** When queried on topics not covered in ingested documents, the service reliably outputs `NO_EVIDENCE_FOUND`.

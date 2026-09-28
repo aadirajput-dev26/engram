@@ -1,124 +1,234 @@
-# 08 — API Contracts (FastAPI AI / Document Intelligence Service)
+# 08 — API Contracts (RAG Pipeline Microservice)
 
-## 0. Conventions
+## 0. Conventions & Standards
 
-- All endpoints are prefixed `/api/v1` (versioned from day one).
-- All endpoints require:
-  - Header `X-Api-Key: <AI_SERVICE_API_KEY>` — proves the caller is the trusted Node.js Backend.
-  - Requests missing or failing this check return `401 Unauthorized`.
-- All request/response bodies are Pydantic models (see `09_DATA_MODELS.md`); FastAPI's automatic OpenAPI schema is the source of truth for exact field types, generated from these models — this document specifies intent, field presence, and semantics, not a hand-duplicated JSON schema.
-- Errors follow a consistent envelope:
+- **Base URL Prefix:** All endpoints are versioned under `/api/v1`.
+- **Authentication & Tenant Scoping:**
+  - Header: `X-Api-Key: sk-engram-...`
+  - The API key cryptographically resolves to the caller's authenticated tenant context (`org_id`, `workspace_id`).
+  - **No Redundant Form Parameters:** Callers do not need to redundantly pass `org_id` or `workspace_id` in request payloads; the microservice automatically extracts and enforces tenant boundaries directly from the API key.
+  - Requests missing or carrying invalid API keys return `401 Unauthorized`.
+- **Response Format:** All JSON responses conform to standard Pydantic schemas.
+- **Consistent Error Structure:**
   ```json
-  { "error": { "code": "STRING_ERROR_CODE", "message": "human readable", "details": {} } }
+  {
+    "error": {
+      "code": "STRING_ERROR_CODE",
+      "message": "Human-readable description of error",
+      "details": {}
+    }
+  }
   ```
-- Idempotency: endpoints that create a resource accept an optional `Idempotency-Key` header; replaying the same key returns the original result rather than creating a duplicate (important for document ingestion retries from Node.js Backend).
+- **Idempotency:** Endpoints that create or trigger jobs accept an optional `Idempotency-Key` header to safely allow retries without duplicate processing.
 
-## 1. `POST /api/v1/documents/ingest`
+---
 
-**Purpose:** register a new document (or new version of an existing document) for processing.
+## 1. Document Ingestion API
 
-**Request (`DocumentIngestRequest`):**
-- `org_id`, `workspace_id`, `folder_id` (from scope/context)
-- `document_id` (optional — if provided, this is a new version of an existing document)
-- `file_ref`: object-storage reference (bucket/key) OR a direct multipart upload for small files
-- `filename`, `declared_mime_type`
-- `content_hash` (client-computed, verified server-side)
-- `uploaded_by_user_id`
+### `POST /api/v1/documents/ingest`
+**Purpose:** Unified ingestion endpoint for all supported document media types and external sources.
 
-**Response (`DocumentIngestResponse`):**
-- `document_id`, `document_version_id`, `job_id`, `status: "QUEUED"` (or `"ALREADY_PROCESSED"` if `content_hash` matches an existing ready version — idempotent short-circuit, see `04_DOCUMENT_PROCESSING_SPEC.md` §8)
+**Authentication:** `X-Api-Key` required (resolves `org_id` and `workspace_id`).
 
-**Errors:** `400` invalid file type/size, `409` content hash mismatch with declared version, `422` schema validation failure.
+**Request Format:** Multipart Form (`multipart/form-data`) or JSON (for URL links).
 
-## 2. `GET /api/v1/documents/{document_id}/status`
+**Parameters:**
+- `file`: (Binary, optional if submitting URL) The document file bytes.
+- `url`: (String, optional if submitting file) URL to fetch and ingest document content.
+- `document_type`: (Enum, optional) Declared document category: `pdf`, `docx`, `xlsx`, `csv`, `image`, `url`. If omitted, automatically inferred via MIME sniffing.
+- `filename`: (String, optional) Target filename display override.
+- `document_id`: (UUID, optional) If specified, registers this upload as a new version (`v2`, `v3`) of an existing document.
+- `folder_id`: (UUID, optional) Logical folder placement within workspace.
+- `content_hash`: (String, optional) Client-computed SHA-256 hash for immediate deduplication check.
 
-**Purpose:** poll processing status.
+**Response (`202 Accepted` or `200 OK`):**
+```json
+{
+  "document_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+  "document_version_id": "a1b2c3d4-0000-1111-2222-333344445555",
+  "job_id": "e4d3c2b1-9999-8888-7777-666655554444",
+  "status": "QUEUED",
+  "message": "Document accepted for asynchronous processing."
+}
+```
+*Note: If the `content_hash` matches an existing, fully-processed document in the same workspace, the endpoint responds idempotently with `status: "ALREADY_PROCESSED"`.*
 
-**Response (`ProcessingStatusResponse`):**
-- `document_id`, `document_version_id`, `job_id`
-- `overall_status`: one of the lifecycle states in `14_ASYNC_PROCESSING.md` (`UPLOADED, QUEUED, PROCESSING, OCR, STRUCTURE_EXTRACTION, DATA_EXTRACTION, CHUNKING, EMBEDDING, INDEXING, READY, FAILED, PARTIAL`)
-- `stage_details[]`: per-stage status, progress (e.g., pages completed/total), error message if failed
-- `updated_at`
+---
 
-## 3. `POST /api/v1/documents/{document_id}/process`
+## 2. Document Status & Lifecycle APIs
 
-**Purpose:** explicitly (re)trigger processing — e.g., retry a `FAILED`/`PARTIAL` job, or re-run a specific stage after a fix.
+### `GET /api/v1/documents/{document_id}/status`
+**Purpose:** Poll processing progress and stage-level execution metrics for an ingested document.
 
-**Request (`ReprocessRequest`):**
-- `stages`: optional list restricting reprocessing to specific stages (e.g., `["DATA_EXTRACTION"]`); omitted = resume from the first failed/incomplete stage.
-- `document_version_id`: which version to reprocess (defaults to latest).
+**Response (`200 OK`):**
+```json
+{
+  "document_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+  "document_version_id": "a1b2c3d4-0000-1111-2222-333344445555",
+  "job_id": "e4d3c2b1-9999-8888-7777-666655554444",
+  "overall_status": "READY",
+  "progress_percentage": 100.0,
+  "stage_details": [
+    { "stage": "VALIDATION", "status": "COMPLETED", "details": "MIME type verified" },
+    { "stage": "LAYOUT_EXTRACTION", "status": "COMPLETED", "details": "42 pages parsed" },
+    { "stage": "STRUCTURED_FACTS", "status": "COMPLETED", "details": "128 facts stored" },
+    { "stage": "CHUNKING_EMBEDDING", "status": "COMPLETED", "details": "164 chunks indexed in Qdrant" }
+  ],
+  "updated_at": "2026-09-29T01:00:00Z"
+}
+```
 
-**Response:** same shape as ingest response (`job_id`, `status`).
+### `GET /api/v1/documents/{document_id}/chunks`
+**Purpose:** Retrieve paginated, structure-aware chunks and layout metadata for a processed document.
 
-**Authorization:** requires `documents.upload` or an equivalent reprocessing capability.
+**Query Parameters:**
+- `page`: Page index (default: `1`).
+- `limit`: Chunk page size (default: `50`, max: `100`).
 
-## 4. `POST /api/v1/query`
+**Response (`200 OK`):**
+```json
+{
+  "document_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+  "total_chunks": 164,
+  "page": 1,
+  "limit": 50,
+  "chunks": [
+    {
+      "chunk_id": "f8a1... ",
+      "chunk_index": 0,
+      "page_numbers": [1, 2],
+      "section_path": "Executive Summary > Overview",
+      "chunk_type": "paragraph",
+      "text": "The organization achieved positive operating margin...",
+      "char_count": 482
+    }
+  ]
+}
+```
 
-**Purpose:** the AI-based query/response system (structured / RAG / hybrid).
+### `POST /api/v1/documents/{document_id}/process`
+**Purpose:** Re-trigger or resume processing for a document version that encountered a partial error or needs re-indexing.
 
-**Request (`QueryRequest`):**
-- `query_text`
-- `scope`: `{org_id, workspace_id, document_ids?: []}` (from the caller's granted scope — Node.js Backend fills this from the scope token; FastAPI re-validates it matches the token)
-- `route_override`: optional (`structured|rag|hybrid`) for debugging/testing; default is auto-classification
-- `top_k`: optional override for retrieval depth
-- `conversation_id`: optional, for multi-turn context (see note below)
+**Request Body (`ReprocessRequest`):**
+```json
+{
+  "stages": ["CHUNKING_EMBEDDING"],
+  "document_version_id": "a1b2c3d4-0000-1111-2222-333344445555"
+}
+```
 
-**Response (`QueryResponse`):**
-- `answer`
-- `route_used`: `structured|rag|hybrid`
-- `no_evidence`: bool
-- `citations[]`: `{citation_id, document_id, document_name, page_number, section_path, chunk_id?, fact_id?}`
-- `structured_evidence[]`: raw fact rows used, if any
-- `confidence`
-- `latency_ms`
+---
 
-**Note on multi-turn:** conversational follow-up handling (resolving pronouns/context across turns) is **not specified in detail here** — the problem statement does not explicitly require multi-turn chat; the field exists for forward compatibility but v1 may treat each query independently. Marked as an open item in `18_IMPLEMENTATION_ROADMAP.md`.
+## 3. Query & Inference APIs
 
-**Authorization:** requires `ai.query` capability plus `documents.read` on the resolved scope.
+### `POST /api/v1/query`
+**Purpose:** Execute an intelligent, grounded query across the workspace or selected documents. Automatically coordinates structured SQL, hybrid RAG, or dual-path synthesis.
 
-## 5. `POST /api/v1/search`
+**Request Body (`QueryRequest`):**
+```json
+{
+  "query_text": "What was the operating revenue for Division Alpha in 2024 and why did it fluctuate?",
+  "document_ids": ["7c9e6679-7425-40de-944b-e07fc1f90ae7"],
+  "route_override": null,
+  "top_k": 8
+}
+```
+*(Note: `org_id` and `workspace_id` are automatically bound from the caller's API key).*
 
-**Purpose:** lower-level retrieval-only endpoint (no LLM answer generation) — useful for a "search results" UI distinct from the conversational assistant, and for debugging retrieval quality.
+**Response (`200 OK`):**
+```json
+{
+  "answer": "In FY2024, Division Alpha generated $142.5M in operating revenue [F1]. The fluctuation observed in Q3 was primarily attributed to temporary supply chain delays and logistical re-routing [C1].",
+  "route_used": "HYBRID",
+  "no_evidence": false,
+  "confidence": 0.96,
+  "citations": [
+    {
+      "citation_id": "F1",
+      "type": "STRUCTURED_FACT",
+      "document_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "document_title": "FY2024 Annual Financial Report",
+      "page_number": 14,
+      "fact_details": { "metric": "operating_revenue", "value": 142.5, "unit": "USD_MILLIONS", "period": "2024" }
+    },
+    {
+      "citation_id": "C1",
+      "type": "NARRATIVE_CHUNK",
+      "document_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "document_title": "FY2024 Annual Financial Report",
+      "page_number": 19,
+      "section_path": "Operational Review > Supply Chain",
+      "excerpt": "Operating margins in Q3 were impacted by external transit bottlenecks..."
+    }
+  ],
+  "latency_ms": 780
+}
+```
 
-**Request (`SearchRequest`):** `query_text`, `scope`, `top_k`, `filters?` (metric/mine/period/date-range hints).
+---
 
-**Response (`SearchResponse`):** ranked list of `RetrievalResult` (chunk-level: `chunk_id`, `document_id`, `page_number`, `section_path`, `snippet`, `score`).
+## 4. Semantic Search API
 
-## 6. `POST /api/v1/extract`
+### `POST /api/v1/search`
+**Purpose:** Perform pure hybrid retrieval (dense vector + lexical FTS + cross-encoder reranking) without LLM answer generation. Used for search UIs and evidence discovery.
 
-**Purpose:** on-demand structured extraction for a specific document/page range (e.g., "re-extract facts from this table the user just flagged as incorrect"), distinct from the automatic pipeline extraction run during ingestion.
+**Request Body (`SearchRequest`):**
+```json
+{
+  "query_text": "supply chain risk factors",
+  "document_ids": [],
+  "top_k": 10,
+  "min_score": 0.50
+}
+```
 
-**Request (`ExtractRequest`):** `document_id`, `document_version_id`, `page_range?`, `table_id?`.
+**Response (`200 OK`):**
+```json
+{
+  "total_results": 10,
+  "results": [
+    {
+      "chunk_id": "c1d2e3f4...",
+      "document_id": "7c9e6679...",
+      "page_numbers": [19],
+      "section_path": "Risk Factors > Logistics",
+      "snippet": "Supply chain operations experienced localized disruptions...",
+      "score": 0.924,
+      "retrieval_source": "HYBRID_FUSION"
+    }
+  ]
+}
+```
 
-**Response (`ExtractResponse`):** list of `ExtractedFact` produced/updated.
+---
 
-## 7. `POST /api/v1/topics`
+## 5. Collections & Groupings API
 
-**Purpose:** trigger topic identification / word-cloud analysis over a document collection.
+### `POST /api/v1/collections`
+**Purpose:** Group documents into logical collections within a workspace for focused querying and analytics.
 
-**Request (`TopicAnalysisRequest`):** `scope` (`org_id`, `workspace_id`, `document_ids[]` or "all in workspace"), `method_options?` (e.g., number of topics).
+---
 
-**Response (`TopicAnalysisResponse`):** `job_id`, `status` — this is an **asynchronous** endpoint for non-trivial collections (see `13_TOPIC_ANALYSIS.md`); result is retrieved via a corresponding status/result endpoint, e.g. `GET /api/v1/topics/{job_id}`.
+## 6. Planned Roadmap Endpoints
 
-## 8. `GET /api/v1/topics/{job_id}`
+The following endpoints represent planned extensions specified in the roadmap:
 
-**Response (`TopicResult`):** `keywords[]` (term, score), `topics[]` (topic label/id, top terms, representative document/chunk references), `word_cloud_data[]` (term, frequency, normalized weight), `entities[]` (named entities with counts).
+### `POST /api/v1/topics` *(Roadmap)*
+Initiates corpus-wide topic modeling and keyword distribution analysis (runs asynchronously). Status and results queried via `GET /api/v1/topics/{job_id}`.
 
-## 9. `POST /api/v1/reports/generate`
+### `POST /api/v1/reports/generate` *(Roadmap)*
+Triggers automated multi-section report drafting based on evidence templates. Output retrieved via `GET /api/v1/reports/{job_id}`.
 
-**Purpose:** AI-assisted report generation.
+---
 
-**Request (`ReportGenerateRequest`):** `scope`, `report_type` (extensible enum, e.g., `production_summary`, `parliamentary_response_draft`, `custom`), `parameters` (mines/subsidiaries/periods/question text depending on `report_type`), `output_format` (`docx|pdf`).
+## 7. Standard HTTP Error Codes
 
-**Response:** `job_id`, `status` (asynchronous — report generation involves multiple retrieval/validation passes; see `12_REPORT_GENERATION.md`). Result retrieved via `GET /api/v1/reports/{job_id}` returning the generated file reference (object storage) plus the full evidence/citation trail used, which Node.js Backend persists as the report's metadata.
-
-## 10. Common Error Codes
-
-| Code | Meaning |
-|---|---|
-| `INVALID_SCOPE` | Scope token does not grant access to the requested resource |
-| `UNSUPPORTED_FILE_TYPE` | File type not in the supported list |
-| `DOCUMENT_NOT_READY` | Query/extract/report requested against a document still processing |
-| `UNSUPPORTED_QUERY` | Structured query plan did not map to any known template |
-| `NO_EVIDENCE_FOUND` | Not strictly an error — a valid, explicit response state (HTTP 200, `no_evidence: true`) |
-| `PROCESSING_FAILED` | Terminal failure of a processing job/stage |
+| Status Code | Error Code | Description |
+|---|---|---|
+| `400` | `BAD_REQUEST` | Malformed parameters, unsupported file MIME type, or file size exceeds limits. |
+| `401` | `UNAUTHORIZED` | Missing or invalid `X-Api-Key` header. |
+| `403` | `FORBIDDEN` | Caller does not possess permissions for the requested workspace or document scope. |
+| `404` | `NOT_FOUND` | Specified document or job identifier does not exist. |
+| `409` | `CONFLICT` | Resource version mismatch or concurrent mutation conflict. |
+| `422` | `UNPROCESSABLE_ENTITY` | Pydantic schema validation failure on request payload. |
+| `500` | `INTERNAL_SERVER_ERROR` | Unhandled processing error during pipeline execution. |

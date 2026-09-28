@@ -1,86 +1,161 @@
 # 03 — RAG Pipeline Specification
 
-## 1. Why Not a Generic PDF→Chunks→Embeddings→Vector DB→LLM Pipeline
+## 1. Architectural Philosophy: The Dual-Track RAG Pipeline
 
-The domain contains dense exact figures (production numbers, targets, achievements, mine names, years, coal grades) intermixed with narrative explanation. A pure vector-RAG pipeline:
+Standard naive RAG architectures—relying solely on extracting raw text chunks, embedding them into a vector database, and passing top-$k$ semantic matches to an LLM—fail in mission-critical enterprise environments. Enterprise documents (such as financial filings, operational logs, technical specifications, compliance audits, and contracts) contain dense quantitative metrics, key performance indicators (KPIs), multi-column tables, and exact dates intermixed with explanatory narrative prose.
 
-- Frequently retrieves the wrong chunk for exact-figure questions (semantic similarity does not guarantee the correct row/year/mine is retrieved).
-- Cannot reliably answer aggregate/comparison questions ("total production across all subsidiaries in 2023") because that requires computation over structured data, not text retrieval.
-- Has no natural mechanism to guarantee numeric fidelity, which is essential for parliamentary-grade reporting.
+A naive semantic vector-search pipeline exhibits fundamental limitations when handling such data:
+- **Exact Numeric & Entity Retrieval Failure:** Semantic similarity measures conceptual proximity, not factual precision. Vector search frequently retrieves a semantically similar chunk describing a neighboring quarter, department, or related entity instead of the exact figure requested.
+- **Inability to Compute Aggregations:** Questions requiring arithmetic computation or comparative analysis (e.g., *"What was the total operating expense across all business units in Q3 2024?"*) require aggregate calculation over structured data rather than semantic text retrieval.
+- **Lack of Numeric Fidelity:** Standard LLM generation from narrative context lacks strict transactional guarantees for numeric accuracy, posing unacceptable hallucination risks.
 
-Therefore this system splits information into two parallel tracks that are fused at query time.
+To solve this, this RAG Pipeline microservice implements a **Dual-Track Ingestion and Query Architecture**:
+1. **Structured Extraction Track:** Identifies tabular and discrete quantitative entities, validates their types, and persists normalized structured facts into PostgreSQL for exact SQL querying.
+2. **Unstructured Narrative Track:** Performs structure-aware chunking preserving hierarchy and context, indexes chunks into Qdrant for dense semantic vector retrieval, and indexes terms into PostgreSQL for lexical Full-Text Search (FTS).
+3. **Hybrid Query Engine:** Dynamically routes queries to structured SQL, hybrid semantic/lexical retrieval, or a unified fusion path that synthesizes both structured metrics and narrative context with verifiable citations.
 
-## 2. End-to-End Pipeline (conceptual)
+---
+
+## 2. End-to-End Pipeline Architecture
 
 ```
-Document
-  → Ingestion & validation
-  → Classification (digital / scanned / office / spreadsheet / image)
-  → OCR (if scanned) / native parsing (if digital)
-  → Structure understanding (pages → sections → subsections → tables → paragraphs)
-  → Metadata extraction (title, dates, doc type, subsidiary/mine hints)
-  → [Structured extraction track]      [Unstructured chunking track]
-       → candidate facts                 → structure-aware chunks
-       → validation & normalization      → chunk metadata (doc/page/section)
-       → PostgreSQL (structured facts)   → embeddings → Qdrant
-                                          → keyword index (Postgres FTS)
-  → READY (both tracks indexed; job status updated)
+=== INGESTION & PROCESSING LIFECYCLE ===
 
-Query
-  → Query understanding & classification (structured / RAG / hybrid)
-  → [structured path]                  [RAG path]
-       → parameter extraction            → semantic retrieval (Qdrant)
-       → validated query plan            → keyword retrieval (Postgres FTS)
-       → parameterized SQL execution     → candidate fusion
-                                          → reranking
-                                          → context selection
-  → Answer composition (LLM), constrained to retrieved/queried evidence
-  → Claim-to-evidence validation
-  → Citation attachment
-  → Response (or "no evidence found")
+Raw Document (PDF / DOCX / XLSX / CSV / Image)
+  │
+  ▼
+[Stage 1: Ingestion & Validation]
+  ├── Detect MIME type, file size, and magic bytes
+  └── Store original artifact in Object Storage
+  │
+  ▼
+[Stage 2: Document Classification & Layout Analysis]
+  ├── Classify format (Digital PDF / Scanned PDF / Office Doc / Spreadsheet / Image)
+  ├── OCR Processing (Tesseract / Vision Model for scanned media)
+  └── Native Extraction (PyMuPDF / pdfplumber for digital documents)
+  │
+  ▼
+[Stage 3: Hierarchical Structure Understanding]
+  ├── Document Tree Construction (Document → Pages → Sections → Subsections)
+  ├── Table & Bounding Box Detection
+  └── Document-level Metadata Extraction (Title, Author, Dates, Entity hints)
+  │
+  ├────────────────────────────────────────┬────────────────────────────────────────┐
+  │                                        │                                        │
+  ▼                                        ▼                                        ▼
+[Track A: Structured Extraction]       [Track B: Unstructured Chunking]       [Document Catalog]
+  │                                        │                                        │
+  ├── Table & Entity Parsing              ├── Hierarchy-Preserving Chunking        └── Status Update:
+  ├── Fact Validation & Normalization      ├── Chunk Metadata Binding                     `READY`
+  └── PostgreSQL Storage:                  ├── Vector Embeddings → Qdrant
+      `ExtractedFact` tables               └── Full-Text Indexing → Postgres FTS
+
+
+=== QUERY & INFERENCE LIFECYCLE ===
+
+Client Application Request (Query + Context Scope + X-Api-Key)
+  │
+  ▼
+[Stage 4: Query Understanding & Routing]
+  ├── Scope Validation (Workspace / Organization isolation via API Key)
+  ├── Intent Classification:
+  │     ├── `STRUCTURED`: Tabular / aggregation / metric lookup
+  │     ├── `UNSTRUCTURED`: Qualitative / narrative / conceptual query
+  │     └── `HYBRID`: Requires both exact metrics and narrative context
+  │
+  ├────────────────────────────────────────┬────────────────────────────────────────┐
+  │                                        │                                        │
+  ▼ (if Structured / Hybrid)               ▼ (if Unstructured / Hybrid)             │
+[Path A: Structured Query Engine]       [Path B: Hybrid Retrieval Engine]            │
+  │                                        │                                        │
+  ├── Parameter & Filter Extraction        ├── Dense Vector Search (Qdrant)         │
+  ├── Parameterized SQL Generation         ├── Lexical Keyword Search (Postgres FTS)│
+  └── Deterministic Execution (Postgres)   ├── Reciprocal Rank Fusion (RRF)         │
+                                           └── Cross-Encoder Reranking              │
+                                                   │                                │
+                                                   ▼                                │
+                                           Top-K Context Selection                  │
+                                                   │                                │
+  └────────────────────────────────────────┬───────┴────────────────────────────────┘
+                                           │
+                                           ▼
+[Stage 5: Synthesis, Grounding & Verification]
+  ├── LLM Answer Generation (Prompt constrained strictly to retrieved facts/chunks)
+  ├── Claim-to-Evidence Verification (Every assertion mapped to citation ID)
+  ├── Hallucination Fallback (Return `NO_EVIDENCE_FOUND` if ungrounded)
+  └── Formatted Response with Provenance Citations (Document, Page, Chunk/Row)
 ```
 
-## 3. Pipeline Stages — Responsibilities
+---
 
-| Stage | Input | Output | Detail Doc |
+## 3. Pipeline Stages & Component Responsibilities
+
+| Stage | Input | Primary Output | Specification Reference |
 |---|---|---|---|
-| Ingestion & validation | Raw file bytes/object storage ref | Validated file, detected MIME/type | `04_DOCUMENT_PROCESSING_SPEC.md` |
-| Classification | Validated file | `digital_pdf \| scanned_pdf \| docx \| xlsx \| csv \| image` | `04` |
-| OCR/Parsing | Classified file | Raw page text + layout boxes | `04` |
-| Structure understanding | Raw page text + layout | Section/subsection tree, table regions, PageIndex-style page map | `04` |
-| Metadata extraction | Structure tree | Document-level metadata (title, dates, doc type, detected entities) | `04` |
-| Structured extraction | Structure tree + tables + text | `ExtractedFact` rows in PostgreSQL | `06_STRUCTURED_DATA_EXTRACTION.md` |
-| Chunking | Structure tree | Structure-aware `Chunk` records | `04` |
-| Embedding & indexing | Chunks | Qdrant vectors + Postgres FTS rows | `05_RETRIEVAL_AND_RERANKING.md` |
-| Query routing | User query + scope | Query plan (`structured`/`rag`/`hybrid`) | `07_AI_QUERY_ENGINE.md` |
-| Retrieval & reranking | Query plan | Ranked evidence set | `05` |
-| Answer generation | Evidence set + query | Draft answer + claims | `07`, `11_CITATION_AND_VALIDATION.md` |
-| Validation | Draft answer + evidence | Verified answer or "no evidence found" | `11` |
-| Citation attachment | Verified answer + evidence | Final `QueryResponse` with citations | `11` |
+| **Ingestion & Validation** | Raw bytes or object storage reference | Validated file descriptor, verified MIME type | `04_DOCUMENT_PROCESSING_SPEC.md` |
+| **Classification & Extraction** | Validated file artifact | Raw text stream, page layouts, coordinates | `04_DOCUMENT_PROCESSING_SPEC.md` |
+| **Structure Understanding** | Layout tree + text | Hierarchical document tree, section boundaries, tables | `04_DOCUMENT_PROCESSING_SPEC.md` |
+| **Metadata Extraction** | Document structure tree | Document metadata (Title, dates, tags, detected entities) | `04_DOCUMENT_PROCESSING_SPEC.md` |
+| **Structured Fact Extraction** | Tables, key-value pairs, layout text | Normalized `ExtractedFact` records in PostgreSQL | `06_STRUCTURED_DATA_EXTRACTION.md` |
+| **Structure-Aware Chunking** | Narrative sections, document hierarchy | Semantic `Chunk` records with breadcrumbs | `04_DOCUMENT_PROCESSING_SPEC.md` |
+| **Embedding & Indexing** | Chunks | Dense vector index (Qdrant) + Lexical index (Postgres FTS) | `05_RETRIEVAL_AND_RERANKING.md` |
+| **Query Classification & Routing** | User query + Tenant scope | Query execution plan (`STRUCTURED`, `RAG`, `HYBRID`) | `07_AI_QUERY_ENGINE.md` |
+| **Hybrid Retrieval & Reranking** | Query plan + search vectors | Top-$k$ high-relevance evidence chunks | `05_RETRIEVAL_AND_RERANKING.md` |
+| **Synthesis & Verification** | Evidence set + User query | Factual draft answer linked to citation IDs | `07_AI_QUERY_ENGINE.md`, `11_CITATION_AND_VALIDATION.md` |
+| **Citation Attachment** | Verified answer + evidence payload | Final response payload with exact page/line references | `11_CITATION_AND_VALIDATION.md` |
 
-## 4. Structured vs. Unstructured — Decision Rule
+---
 
-Used both during **extraction** (what goes to Postgres vs. what stays as narrative chunks) and during **query routing** (see `07_AI_QUERY_ENGINE.md`).
+## 4. Dual-Track Partitioning: Structured vs. Unstructured
 
-A span of content is treated as **structured** if it expresses one or more discrete, typed facts of the form:
-`(metric, value, unit, mine?, subsidiary?, coal_grade?, year/period, source_location)`
-— e.g., a table row "Mine X | 2023 | Target: 4.2 MT | Achievement: 3.9 MT".
+During ingestion, the pipeline applies deterministic heuristics and model-assisted classification to determine how information spans are routed:
 
-A span is treated as **unstructured/narrative** if it explains, justifies, describes, or recommends — e.g., "Production fell short of target due to heavy monsoon rainfall and equipment downtime at Mine X."
+### 4.1 Structured Information Criteria
+A document region is routed to the **Structured Extraction Track** if it represents discrete, tabular, or typed data:
+- Tables with clear column headers and row entities.
+- Financial or operational metrics: `(entity, metric_name, value, unit, time_period, source_location)`.
+- Key-Value pairs with explicit labels (e.g., `"Operating Revenue: $42.5M"`, `"Audit Date: 2024-03-31"`).
+- Structured tabular data is extracted, normalized, validated for data types, and stored in relational tables.
 
-**Important:** the same document region can produce both — a table row becomes an `ExtractedFact`, and an adjoining paragraph explaining that row becomes a `Chunk`. They are cross-linked via `document_id` + `page_number` + (optionally) `section_id` so hybrid queries can join them.
+### 4.2 Unstructured / Narrative Information Criteria
+A document region is routed to the **Unstructured Chunking Track** if it represents contextual, descriptive, or discursive prose:
+- Paragraphs explaining operational trends, risks, policies, or market conditions.
+- Section overviews, introductions, and conclusions.
+- Footnotes, qualitative assessments, and commentary.
 
-## 5. Hallucination Prevention — Core Principle
+### 4.3 Cross-Track Linking
+The same document page frequently produces both structured facts and narrative chunks (e.g., a financial balance sheet followed by explanatory footnotes). To preserve relational context:
+- Every `ExtractedFact` and `Chunk` records its exact provenance: `document_id`, `page_number`, and `section_id`.
+- The Query Engine can perform cross-track joins: retrieving an exact structured metric and immediately augmenting it with narrative chunks from the same page or section to explain *why* that metric changed.
 
-The LLM is **never** asked to answer from parametric memory. Every prompt sent to the LLM for question-answering or report drafting includes only:
-- The retrieved/queried evidence (structured rows and/or ranked chunks), each tagged with a citation ID.
-- An explicit instruction to answer only from the provided evidence, and to say `NO_EVIDENCE_FOUND` (a defined sentinel) if the evidence does not answer the question.
+---
 
-Post-generation, a validation step checks that every factual/numeric claim in the answer maps back to a citation ID actually present in the evidence set (see `11_CITATION_AND_VALIDATION.md`). Claims that fail this check are stripped or the whole answer is downgraded to "no evidence found," rather than shown as-is.
+## 5. Grounded Generation & Hallucination Prevention
 
-## 6. Reusable Core vs. Domain-Specific Layer
+A core requirement of this enterprise RAG microservice is absolute evidentiary grounding. The system adheres to strict validation principles:
 
-- Reusable: stages 1–2 (ingestion/classification), OCR/parsing, structure understanding, chunking, embedding/indexing infrastructure, retrieval/reranking infrastructure, the query-routing *framework*, the validation/citation *framework*.
-- Domain-specific: the structured-fact schema (`06_STRUCTURED_DATA_EXTRACTION.md`), extraction prompts/regex tuned for mining/production terminology, report templates (`12_REPORT_GENERATION.md`), and topic-analysis vocabulary (`13_TOPIC_ANALYSIS.md`).
+1. **No Parametric Memory Recall:** The LLM is strictly instructed to act as a grounded synthesizer, drawing conclusions solely from the context payload provided in the prompt.
+2. **Sentinel Fallbacks:** If the retrieved evidence does not contain sufficient facts to answer the question, the system is programmed to return an explicit sentinel response (`NO_EVIDENCE_FOUND`) rather than generating speculative text.
+3. **Strict Citation Binding:** Every factual claim, number, or assertion in the generated response must reference one or more active citation IDs included in the evidence payload.
+4. **Post-Generation Fact Verification:** Before returning a response to the client application, an automated validation module verifies that all numerical quantities in the answer appear verbatim in the referenced source chunks or structured records. Any ungrounded assertion causes the claim to be flagged or downgraded.
 
-This separation must be reflected in code module boundaries (see `18_IMPLEMENTATION_ROADMAP.md`, Phase 0).
+---
+
+## 6. Microservice Reusability & Extensibility Boundaries
+
+The architecture is partitioned into a generic infrastructure core and a configurable domain layer:
+
+- **Universal Engine Core (Domain-Agnostic):**
+  - File ingestion, MIME validation, and object storage management.
+  - OCR pipelines, text layout analysis, and hierarchical structure parsing.
+  - Chunking algorithms, dense vector embedding orchestration, and Qdrant indexing.
+  - Hybrid retrieval fusion (RRF), cross-encoder reranking, and search filtering.
+  - Multi-tenant data isolation, API key resolution, and async worker execution.
+  - Citation attachment and claim-to-evidence validation frameworks.
+
+- **Configurable Domain Adapters:**
+  - Structured extraction schemas (defining target metrics and entities for specific industries).
+  - Domain-specific report templates (defining required sections and validation constraints).
+  - Specialized topic-modeling stopword lists and entity dictionaries.
+
+This separation ensures the RAG Pipeline microservice functions as a turnkey, general-purpose enterprise infrastructure component that can be integrated into any client application.

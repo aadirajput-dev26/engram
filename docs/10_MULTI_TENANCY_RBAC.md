@@ -1,66 +1,98 @@
-# 10 — Multi-Tenancy and RBAC
+# 10 — Multi-Tenancy and Access Control (RBAC)
 
 ## 1. Tenancy Hierarchy
 
+The RAG Pipeline microservice implements a strict hierarchical tenancy model to guarantee complete cryptographic and logical isolation of enterprise data:
+
 ```
-Organization  (e.g., a CIL subsidiary, or CMPDI, or a Ministry department — generic, not hard-coded)
-  → Workspace  (department/project within the organization)
-    → Folder    (existing concept in the current portal — VERIFY AGAINST EXISTING REPOSITORY for exact current semantics)
-      → Document
+Organization (`org_id`)
+  └── Workspace (`workspace_id`)
+        ├── API Keys (`sk-engram-...`)
+        └── Collections / Folders (`folder_id`)
+              └── Documents (`document_id`)
+                    ├── Document Versions (`document_version_id`)
+                    ├── Structured Facts (`ExtractedFact`)
+                    └── Narrative Chunks (`Chunk` in Postgres & Qdrant)
 ```
 
-- **Decision:** `Organization` is a first-class, generic entity. No subsidiary name (e.g., "NCL", "SECL") appears anywhere in code, config enums, or schema constraints — only as *data* rows.
-- **Alternative considered:** hard-coding a fixed list of CIL subsidiaries as an enum for faster initial development. **Reason for rejection:** explicitly disallowed by the problem statement's generality requirement, and it would block onboarding CMPDI/Ministry/any future organization without a code change.
+- **Organization:** The highest boundary. Represents the enterprise client or legal entity. Cross-organization queries are strictly prohibited.
+- **Workspace:** The functional partition (e.g., department, project, business unit, or operational domain). All document ingestion, chunking, embeddings, and query resolutions are strictly scoped to a workspace.
+- **Collections:** Logical groupings or folders within a workspace for targeted document filtering.
+- **API Keys:** Scoped cryptographic credentials. Each programmatic key (`sk-engram-...`) is issued for a specific `workspace_id` under an `org_id`.
 
-## 2. Roles
+---
+
+## 2. API Key Authentication & Automated Scoping
+
+To maximize security and eliminate developer friction, the microservice implements **automated scope resolution**:
+
+1. **Incoming Request:** Client applications authenticate using the standard HTTP header:
+   ```http
+   X-Api-Key: sk-engram-9f2b8471...
+   ```
+2. **Cryptographic Validation:** The service hashes the incoming key using SHA-256 and matches it against the `api_keys` table in constant time.
+3. **Tenant Context Extraction:** Upon validation, the active session is automatically populated with the authenticated `org_id` and `workspace_id`.
+4. **Zero Redundancy:** Calling clients do not pass redundant `org_id` or `workspace_id` parameters in request bodies or query strings. Tenant boundaries are enforced server-side.
+
+---
+
+## 3. Role & Capability Model
+
+When interacting with the management APIs (such as user provisioning and key generation), access is governed by role-based capabilities:
 
 | Role | Scope | Description |
 |---|---|---|
-| `SUPER_ADMIN` | Platform-wide | Manages organizations, platform configuration, cross-org support access (with audit logging). |
-| `ORG_ADMIN` | Single organization | Manages workspaces, members, and role assignments within their organization. |
-| `MEMBER` | Workspace(s) they're added to | Normal usage: upload, query, generate reports, subject to granted capabilities. |
-| `VIEWER` | Workspace(s)/document(s) they're granted | Read-only: view documents, analytics, reports. Cannot upload, delete, or trigger AI actions that mutate state (may still be granted `ai.query` read-style access — see capability table). |
+| `SUPER_ADMIN` | Platform-wide | Manages organizations, infrastructure settings, and system-wide audits. |
+| `ORG_ADMIN` | Organization | Manages workspaces, workspace memberships, and organizational settings. |
+| `MEMBER` | Workspace | Ingests documents, triggers processing, runs queries, and manages collections. |
+| `VIEWER` | Workspace | Read-only access: executes queries and inspects document summaries without mutation rights. |
 
-> **VERIFY AGAINST EXISTING REPOSITORY:** if the existing Node.js Backend already implements a different role set, this document's roles must be reconciled with (not silently replacing) the existing implementation before coding begins. This role set matches the problem statement's explicit list and is the target if no conflicting implementation exists.
-
-## 3. Capabilities (capability-based permission model)
-
-Roles map to default capability sets; capabilities (not roles) are what every authorization check actually tests, so future custom roles/fine-grained overrides are possible without redesigning enforcement points.
+### Capability Matrix
 
 | Capability | SUPER_ADMIN | ORG_ADMIN | MEMBER | VIEWER |
 |---|---|---|---|---|
-| `documents.read` | ✔ | ✔ | ✔ | ✔ |
-| `documents.upload` | ✔ | ✔ | ✔ | ✘ |
-| `documents.delete` | ✔ | ✔ | ✘ (or configurable) | ✘ |
-| `analytics.read` | ✔ | ✔ | ✔ | ✔ |
-| `reports.create` | ✔ | ✔ | ✔ | ✘ |
-| `reports.approve` | ✔ | ✔ | ✘ | ✘ |
-| `ai.query` | ✔ | ✔ | ✔ | ✔ (read-style only) |
-| `users.manage` | ✔ | ✔ (within own org) | ✘ | ✘ |
+| `documents:read` | ✔ | ✔ | ✔ | ✔ |
+| `documents:ingest` | ✔ | ✔ | ✔ | ✘ |
+| `documents:delete` | ✔ | ✔ | ✘ | ✘ |
+| `api_keys:manage` | ✔ | ✔ | ✘ | ✘ |
+| `query:execute` | ✔ | ✔ | ✔ | ✔ |
+| `analytics:read` | ✔ | ✔ | ✔ | ✔ |
+| `workspaces:manage` | ✔ | ✔ | ✘ | ✘ |
 
-- **Decision:** capabilities are assigned per role by default but stored as an explicit per-user-per-workspace grant table in Node.js Backend (not purely derived from role name in code), so an `ORG_ADMIN` could, e.g., have `reports.approve` revoked for a specific workspace if the business needs it later, without a schema change.
+---
 
-## 4. Document-Level Authorization
+## 4. Multi-Tenant Data Isolation Guarantees
 
-- Default: a user's access to a document is derived from their role/membership in the document's workspace.
-- Optional finer-grained override: specific documents can be restricted further (e.g., a sensitive parliamentary-inquiry document visible only to specific users within a workspace) via an explicit `document_access_grant` table. **This is flagged as a should-have, not verified as already implemented** — VERIFY AGAINST EXISTING REPOSITORY before assuming it exists; if absent, workspace-level access is the enforced default and document-level overrides are a roadmap item (`18_IMPLEMENTATION_ROADMAP.md`).
-- Every AI-service-facing operation (query, search, extract, topics, report generation) must resolve to an explicit list of `allowed_document_ids` (or an explicit `workspace_scope: true` meaning "everything currently visible to this user in this workspace, evaluated at token-mint time") — this resolution happens in Node.js Backend, not FastAPI (see `02_SYSTEM_ARCHITECTURE.md` §4).
+Isolation is enforced through defense-in-depth across every storage engine:
 
-## 5. Enforcement Points
+### 4.1 Relational Storage (PostgreSQL)
+- All document, chunk, fact, and job records include foreign keys to `org_id` and `workspace_id`.
+- Data access layers enforce mandatory `WHERE workspace_id = :workspace_id AND org_id = :org_id` predicates across all queries, updates, and deletes.
+- Reprocess and status operations reject requests targeting documents outside the caller's authorized workspace.
 
-| Layer | What it enforces |
-|---|---|
-| Node.js API layer | All CRUD on organizations/workspaces/folders/documents/reports; role/capability checks on every endpoint. |
-| Node.js Backend → FastAPI scope minting | Resolves the calling user's effective `allowed_document_ids`/`workspace_scope` and `permissions` **at request time**, embeds in the signed scope token. |
-| FastAPI request layer | Validates scope token signature/expiry; rejects any operation whose target falls outside the token's scope. |
-| FastAPI retrieval/query layer | Applies scope as a **native filter** on every Qdrant/Postgres query (see `05_RETRIEVAL_AND_RERANKING.md` §9) — defense in depth, not solely relying on "only authorized documents were listed in the request." |
+### 4.2 Vector Database (Qdrant)
+- Vectors stored in Qdrant carry metadata payloads including `org_id` and `workspace_id`.
+- Every search or hybrid retrieval query applies an immutable payload filter mask during HNSW index traversal:
+  ```json
+  {
+    "must": [
+      { "key": "org_id", "match": { "value": "<caller_org_id>" } },
+      { "key": "workspace_id", "match": { "value": "<caller_workspace_id>" } }
+    ]
+  }
+  ```
+- Result candidates belonging to other tenants are masked out at index time, ensuring zero vector leakage and constant-time tenant isolation.
 
-## 6. Cross-Organization Isolation
+### 4.3 Object Storage (S3 / R2 / MinIO)
+- Document binaries and intermediate artifacts are organized in partitioned object prefixes:
+  ```
+  s3://<bucket>/orgs/{org_id}/workspaces/{workspace_id}/docs/{document_id}/{filename}
+  ```
 
-- No query, retrieval, or structured-data lookup may span organizations implicitly. `org_id` is always part of the mandatory filter, even for `SUPER_ADMIN` support access (which instead performs an explicit, audited "impersonate scope" action in Node.js Backend rather than FastAPI ever accepting an unscoped/multi-org request).
-- Qdrant and Postgres FTS indexes are shared infrastructure but logically partitioned via mandatory payload/row filters — see `05_RETRIEVAL_AND_RERANKING.md` §3–4 for the specific mechanism and its rejected alternative (per-org collections).
+---
 
-## 7. Open Items for Verification
+## 5. Security & Key Lifecycle Management
 
-- Exact current Node.js Backend auth mechanism (session cookie vs JWT vs OAuth) — **VERIFY AGAINST EXISTING REPOSITORY**.
-- Whether "Folder" in the existing app already maps 1:1 to "Workspace" or is a separate nested level — **VERIFY AGAINST EXISTING REPOSITORY**; this document assumes `Workspace → Folder → Document` as stated in the problem brief's existing conceptual structure (`User → Folder/Workspace → Documents → ...`), but the precise nesting must be confirmed against real schema before Phase 13 (Node.js Backend integration) begins.
+- **Zero Plaintext Storage:** Plaintext API keys are generated once via high-entropy cryptographically secure random bytes (`secrets.token_urlsafe`) and presented to the creator. Only the SHA-256 hash (`key_hash`) and a truncated display prefix (`key_prefix`, e.g., `sk-engram-xK9p...`) are stored in the database.
+- **Revocation & Expiry:** API keys can be instantly deactivated by setting `is_active = false` without requiring service restarts.
+- **Audit Logging:** Every key lookup updates `last_used_at` timestamps, providing audit transparency for active client integrations.

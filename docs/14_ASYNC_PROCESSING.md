@@ -1,61 +1,96 @@
-# 14 — Async Processing Architecture
+# 14 — Asynchronous Task Processing Architecture
 
-## 1. Why Async Is Mandatory
+## 1. Architectural Imperative: Non-Blocking Execution
 
-Document processing (OCR, structure extraction, embedding) and multi-pass operations (report generation, topic analysis over large collections) can take from seconds to many minutes, especially for large scanned documents. Synchronous request/response is inappropriate — everything long-running is a **job** with persisted, resumable state.
+Document processing (multi-page OCR, layout tree construction, dense embedding generation, and vector indexing) along with multi-pass operations (iterative report compilation, topic clustering across collections) can take from seconds to several minutes depending on document length and visual complexity.
 
-## 2. Job Queue Design
+Synchronous HTTP request handling for these workloads is fragile, leads to gateway timeouts, and risks resource starvation. Consequently, all computationally heavy workloads are executed asynchronously as **durable, resumable background jobs**.
 
-> **Decision:** implement a PostgreSQL-backed job queue (a `processing_jobs`/`job_tasks` table with `SELECT ... FOR UPDATE SKIP LOCKED` polling by worker processes) rather than introducing Celery + Redis or another message broker.
->
-> **Alternatives considered:**
-> 1. Celery + Redis — rejected per the explicit project constraint to avoid unjustified extra infrastructure; also adds an operational dependency (Redis) with no capability this domain's job volume/throughput actually requires.
-> 2. A managed cloud queue (e.g., SQS) — viable for production but introduces cloud-provider coupling not needed for the prototype and not clearly justified yet.
-> 3. In-process background tasks only (e.g., FastAPI `BackgroundTasks`) — rejected as the sole mechanism because it does not survive process restarts and does not support horizontal worker scaling, both of which are required (large-document resumability, independent worker scaling per `02_SYSTEM_ARCHITECTURE.md`).
->
-> **Reason for the chosen approach:** PostgreSQL is already a required dependency; a `SKIP LOCKED`-based queue is a well-understood, battle-tested pattern that supports multiple concurrent workers, durable retry state, and priority/ordering — sufficient for this domain's job volume (document counts in the hundreds/thousands, not millions of jobs/second). This keeps operational surface area minimal, in line with the project's explicit anti-over-engineering guidance. If job volume/throughput ever demands a dedicated broker, this is the documented upgrade path (see `15_DEPLOYMENT_ARCHITECTURE.md` production section).
+---
 
-## 3. Worker Architecture
+## 2. Durable Job Queue Architecture
 
-- Workers are separate Python processes (can be the same codebase as the FastAPI app, run via a different entrypoint/command) that poll the job queue, claim a task, execute it, persist results, and mark it complete/failed.
-- Workers scale independently from the FastAPI API process — in the prototype this may mean a single worker process; in production, multiple worker replicas (see `15_DEPLOYMENT_ARCHITECTURE.md`).
-- Long-running document processing is decomposed into **per-stage, per-batch tasks** (not one monolithic task per document) so that:
-  - Progress is observable at fine granularity (`ProcessingStageStatus.progress_current/total`, `09_DATA_MODELS.md`).
-  - A crash/restart resumes from the last completed batch, not from scratch.
-  - Multiple workers can, if useful, process different page-batches of the same large document in parallel (implementation detail, not required for v1, but the task decomposition supports it).
-
-## 4. Document Processing Lifecycle
+The microservice employs a **PostgreSQL-native queue mechanism** (`SELECT ... FOR UPDATE SKIP LOCKED`):
 
 ```
-UPLOADED → QUEUED → PROCESSING
-   → OCR (per page-batch; skipped/short-circuited per-page if native text is used)
-   → STRUCTURE_EXTRACTION
-   → DATA_EXTRACTION        (structured facts)
-   → CHUNKING
-   → EMBEDDING
-   → INDEXING
-→ READY
-
-Failure states (can occur from any active stage): FAILED, PARTIAL
+API Request (Ingest / Reprocess / Report / Topic)
+  │
+  ▼
+[FastAPI Route Handler]
+  ├── Inserts record into `processing_jobs` table (status: `QUEUED`)
+  ├── Writes stage tracking records (`VALIDATION`, `LAYOUT_EXTRACTION`, etc.)
+  └── Returns HTTP 202 Accepted with `job_id`
+  │
+  ▼
+[PostgreSQL Database: `processing_jobs`]
+  │
+  ├── Worker Process 1 (polls: SELECT ... FOR UPDATE SKIP LOCKED)
+  ├── Worker Process 2 (concurrent worker scaling)
+  └── Worker Process N
 ```
 
-- `overall_status` is derived from the set of `stage` statuses: `READY` only when every required stage completed successfully for every page/batch; `PARTIAL` when some batches/stages succeeded and others failed (document is usable, but incompletely indexed — surfaced to the user); `FAILED` when a stage failed comprehensively (e.g., file unreadable at all).
-- Each stage transition is persisted (`started_at`/`completed_at`) — this is the audit trail for both debugging and for the "resumable processing" requirement.
+### Architectural Rationale
+- **Zero Additional Infrastructure Overhead:** Eliminates the operational complexity of managing external brokers (such as Celery, RabbitMQ, or Redis) while providing immediate ACID transaction guarantees.
+- **Concurrency & Contention-Free Polling:** `FOR UPDATE SKIP LOCKED` ensures multiple distributed worker instances can poll the job queue concurrently without race conditions or lock contention.
+- **Durability & Resumability:** Job states, progress percentages, and stage checkpoints are transactional and survive worker restarts or service redeployments.
 
-## 5. Retry Semantics
+---
 
-- Retrying a `FAILED`/`PARTIAL` job (`POST /api/v1/documents/{id}/process`) re-queues only the failed/incomplete stage-batches, identified from persisted per-batch stage status — never the whole pipeline, unless the caller explicitly requests `stages: ["ALL"]`.
-- Each stage-batch task has a max retry count (configurable, e.g., 3) before being marked permanently `FAILED` for that batch, so a single corrupt page does not retry indefinitely and does not block the rest of a large document from completing (see `04_DOCUMENT_PROCESSING_SPEC.md` §11).
+## 3. Worker Process Architecture
 
-## 6. Other Async Job Types
+- **Independent Worker Lifecycles:** Workers run as dedicated worker processes, decoupled from the user-facing FastAPI HTTP request loop.
+- **Horizontal Worker Scaling:** In production, worker instances can be scaled horizontally to match document ingestion volume independently from API gateway instances.
+- **Decomposed Stage Tasks:** Large documents are partitioned into granular, page-batched tasks rather than monolithic document jobs:
+  - Progress is transparently observable (`progress_current` vs. `progress_total`).
+  - Unexpected worker crashes resume precisely from the last completed page batch rather than re-executing the entire document from page one.
 
-The same job-queue mechanism (not a separate system) is reused for:
-- Topic analysis jobs (`13_TOPIC_ANALYSIS.md`).
-- Report generation jobs (`12_REPORT_GENERATION.md`).
-- On-demand re-extraction jobs (`08_API_CONTRACTS.md` §6, when the extraction scope is large enough to warrant async handling).
+---
 
-This reuse (one job-queue implementation, multiple task types) is an explicit simplicity choice, avoiding duplicated async-orchestration code across features.
+## 4. End-to-End Document Processing Lifecycle
 
-## 7. Status Visibility
+```
+[UPLOADED]
+   │
+   ▼
+[QUEUED]
+   │
+   ▼
+[PROCESSING]
+   │
+   ├── 1. VALIDATION                (MIME sniffing & SHA-256 content hashing)
+   ├── 2. LAYOUT_EXTRACTION         (PDF text parsing / OCR raster fallback)
+   ├── 3. STRUCTURE_UNDERSTANDING   (PageIndex tree & table detection)
+   ├── 4. STRUCTURED_FACTS          (Table parsing & fact extraction to Postgres)
+   ├── 5. CHUNKING                  (Structure-aware semantic windowing)
+   ├── 6. EMBEDDING                 (Dense vector generation)
+   └── 7. INDEXING                  (Qdrant vector upsert & Postgres FTS indexing)
+   │
+   ▼
+[READY] (or [FAILED] / [PARTIAL] upon unrecoverable error)
+```
 
-All async operations expose a consistent status-polling shape (`job_id`, `overall_status`/`status`, stage/progress detail where applicable) so Node.js Backend (and ultimately the frontend) can implement a single generic "job status" UI pattern rather than bespoke polling per feature.
+### Lifecycle State Definitions
+- `QUEUED`: Job created and awaiting an available worker thread.
+- `PROCESSING`: Job actively being handled by a worker across the defined sub-stages.
+- `READY`: All pages and stages successfully parsed, stored, and indexed. Ready for querying.
+- `PARTIAL`: Completed with non-fatal page-level exceptions (e.g., individual corrupted scanned pages skipped, with remaining content fully queryable).
+- `FAILED`: Terminal processing failure (e.g., completely corrupt binary or unsupported encoding).
+
+---
+
+## 5. Resilient Retry Semantics & Poison-Pill Isolation
+
+- **Selective Reprocessing (`POST /api/v1/documents/{document_id}/process`):** When retrying a failed or partially processed job, the system queries the stage audit logs and re-queues **only the incomplete or failed stages**, preserving already completed embeddings and parsed facts.
+- **Poison-Pill Protection:** If a specific page repeatedly triggers exceptions during OCR or layout parsing, that single page is marked `FAILED` after reaching maximum retry attempts (configurable, default: 3). The worker records an error annotation for that page and proceeds with the rest of the document, preventing an isolated defective page from halting entire enterprise archives.
+
+---
+
+## 6. Unified Asynchronous Lifecycle Across Features
+
+The PostgreSQL-backed job queue powers all long-running asynchronous workflows in the microservice:
+1. **Document Ingestion & Version Processing**
+2. **On-Demand Document Re-Extraction**
+3. **Corpus Analytics & Topic Modeling Jobs**
+4. **Multi-Section Grounded Report Drafting**
+
+Each feature surfaces identical lifecycle contracts (`job_id`, `status`, `stage_details`, `progress_percentage`), providing a unified interface for consuming client applications.

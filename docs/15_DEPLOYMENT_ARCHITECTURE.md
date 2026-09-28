@@ -1,57 +1,136 @@
 # 15 — Deployment Architecture
 
-## 1. Explicit Separation: Prototype vs. Production
+## 1. Deployment Topology
 
-This separation is treated as a first-class design concern, not an afterthought — the project brief explicitly warns against claiming a free/small web service can production-process arbitrary 267 MB scanned documents. This document keeps the two stories distinct and never conflates them.
+The RAG Pipeline microservice is architected as a modular, containerized system where stateless API endpoints, asynchronous processing workers, and stateful datastores scale independently.
 
-## 2. Prototype (SIH Demo) Deployment
+```
+                           ┌───────────────────────────┐
+                           │    Client Application     │
+                           └─────────────┬─────────────┘
+                                         │ HTTPS (X-Api-Key)
+                                         ▼
+                           ┌───────────────────────────┐
+                           │    Ingress Load Balancer  │
+                           └─────────────┬─────────────┘
+                                         │
+                 ┌───────────────────────┴───────────────────────┐
+                 ▼                                               ▼
+     ┌───────────────────────┐                       ┌───────────────────────┐
+     │ FastAPI Microservice  │                       │ FastAPI Microservice  │
+     │     (API Node 1)      │                       │     (API Node 2)      │
+     └───────────┬───────────┘                       └───────────┬───────────┘
+                 │                                               │
+                 ├───────────────────────┬───────────────────────┤
+                 ▼                       ▼                       ▼
+     ┌───────────────────────┐ ┌───────────────────┐ ┌───────────────────────┐
+     │ PostgreSQL 16+        │ │ Qdrant Vector DB  │ │ S3-Compatible Storage │
+     │ - Processing Jobs     │ │ - HNSW Collection │ │ - Raw Files           │
+     │ - Relational Metadata │ │ - Filter Payload  │ │ - Page Images         │
+     │ - FTS GIN Index       │ │   (org/workspace) │ │ - Rendered Artifacts  │
+     │ - Extracted Facts     │ └─────────▲─────────┘ └───────────▲───────────┘
+     └───────────▲───────────┘           │                       │
+                 │                       │                       │
+                 ├───────────────────────┴───────────────────────┤
+                 │                                               │
+     ┌───────────┴───────────┐                       ┌───────────┴───────────┐
+     │  Background Worker 1  │                       │  Background Worker N  │
+     │  (OCR, Chunking,      │                       │  (Horizontally        │
+     │   Embeddings, Report) │                       │   Scalable Workers)   │
+     └───────────┬───────────┘                       └───────────┬───────────┘
+                 │                                               │
+                 └───────────────────────┬───────────────────────┘
+                                         │ HTTPS
+                                         ▼
+                           ┌───────────────────────────┐
+                           │  Configurable LLM API     │
+                           │  (OpenAI-Compatible Spec) │
+                           └───────────────────────────┘
+```
 
-| Component | Suggested Platform |
-|---|---|
-| Frontend | Vercel |
-| Node.js Core API (`BACKEND`) | Render (or equivalent small web service) |
-| FastAPI AI Service | Render (or equivalent small web service) |
-| Job workers | Same Render service as FastAPI (a background worker process/dyno) or a second small Render service, depending on available plan tiers |
-| PostgreSQL | A managed PostgreSQL provider (e.g., Render Postgres, Supabase, Neon — implementation choice, not mandated) |
-| Vector DB | Qdrant Cloud (free/small tier) |
-| Object storage | Any S3-compatible provider with a free/low tier (implementation choice) |
-| LLM | External API via a configurable OpenAI-compatible endpoint — GTWY serving GPT-5 nano, per the team's current access |
+---
 
-**Constraints acknowledged for the prototype:**
-- Limited compute/memory per service instance (e.g., ~512 MB–1 GB class web services).
-- The SIH demo uses a **representative 8–10 MB data-heavy report**, not the 267 MB reference document, specifically because free/small-tier compute cannot be assumed to process the largest documents within a live-demo time budget. This is a demo-logistics decision, not an architectural limitation (see §4).
-- A single worker process is sufficient for demo purposes; horizontal worker scaling is a production concern (§3).
+## 2. Infrastructure Tiers
 
-## 3. Production Deployment (target, not required for the SIH demo)
+### 2.1 API Tier (FastAPI)
+- **Role:** Handles incoming HTTP traffic, authenticates requests via `X-Api-Key`, translates query plans, triggers async jobs, and serves real-time query/search requests.
+- **Scaling:** Stateless; horizontally scalable behind standard layer-7 load balancers (AWS ALB, NGINX, Cloudflare).
 
-| Component | Production Approach |
-|---|---|
-| Frontend | CDN-hosted static/SSR frontend (Vercel or equivalent scales natively) |
-| Node.js Core API (`BACKEND`) | Horizontally scaled container/service behind a load balancer |
-| FastAPI AI Service (API layer) | Horizontally scaled container/service, stateless (all state in Postgres/Qdrant/object storage) |
-| Job workers | Independently scaled worker pool (separate deployment/replica count from the API layer), sized based on processing throughput needs; can scale up during bulk archival-digitization phases and down otherwise |
-| PostgreSQL | Managed, production-tier PostgreSQL with backups, read replicas if needed |
-| Vector DB | Qdrant Cloud production tier (or self-hosted Qdrant cluster) |
-| Object storage | Production-grade object storage (S3 or equivalent) with lifecycle policies for intermediate-artifact cleanup |
-| OCR/processing compute | Dedicated compute (potentially GPU-backed if OCR/embedding throughput demands it) separate from the API tier |
-| LLM | Same configurable OpenAI-compatible interface; provider/model may be upgraded from GPT-5 nano as needs grow, via configuration only |
-| Monitoring | Structured logs + metrics/alerting (implementation choice: e.g., hosted logging/APM provider) |
-| Backups | Automated PostgreSQL backups; object storage versioning/retention policy |
+### 2.2 Worker Tier (Async Runners)
+- **Role:** Dequeues tasks from PostgreSQL using `SELECT ... FOR UPDATE SKIP LOCKED`. Executes CPU- and memory-intensive OCR, layout parsing, chunking, dense embeddings, and multi-pass report drafting.
+- **Scaling:** Scales horizontally based on queue depth. Workers can be deployed on CPU-optimized or GPU-accelerated instances (to accelerate local OCR and embedding pipelines).
 
-## 4. Why 267 MB Is Not Architecturally Different From 8–10 MB
+### 2.3 Datastores
+- **Relational (PostgreSQL):** Stores multi-tenant schemas (`organizations`, `workspaces`, `api_keys`), document catalogs, chunk text with full-text search GIN indices, and extracted facts.
+- **Vector DB (Qdrant):** Stores high-dimensional dense embeddings with indexed payloads (`org_id`, `workspace_id`, `document_id`) for sub-50ms approximate nearest neighbor (ANN) retrieval.
+- **Object Storage (S3 / R2 / MinIO):** Stores raw binaries, rendered page rasters, and generated DOCX/PDF export files.
 
-Because processing is **page-batched and asynchronous** (`04_DOCUMENT_PROCESSING_SPEC.md` §10, `14_ASYNC_PROCESSING.md`), peak memory per processing step is bounded by batch size, not total document size. A 267 MB document simply produces more page-batches and job-tasks, and takes proportionally longer wall-clock time (especially for OCR, which is the dominant cost for scanned content) — it does not require redesigning the pipeline. What *does* change between the two is:
-- **Time budget:** a 267 MB scanned document may take substantially longer to fully process — unsuitable for a live, time-boxed demo, but entirely acceptable for an asynchronous production batch/ingestion pipeline.
-- **Worker capacity needed to keep total pipeline throughput acceptable across many such documents** — a production concern addressed by scaling the worker pool independently (§3), not by changing the algorithm.
-- **Storage/object-storage costs**, which scale roughly linearly and are a capacity-planning concern, not an architecture concern.
+---
 
-The documentation does not claim any specific throughput number (e.g., pages/minute) without empirical measurement — see `17_TESTING_STRATEGY.md` for how such numbers should eventually be produced.
+## 3. Deployment Environments
 
-## 5. Configuration-Driven Provider Choices
+| Component | Development / Evaluation | Enterprise Production |
+|---|---|---|
+| **API Nodes** | 1 Container (Docker / Local) | Multi-replica containerized deployment (Kubernetes / ECS) |
+| **Worker Nodes** | 1 Worker process | Auto-scaling worker cluster based on processing backlog |
+| **Relational DB** | Local PostgreSQL 16 Container | Managed High-Availability PostgreSQL (RDS / Cloud SQL) |
+| **Vector Engine** | Local Qdrant Container | Managed Qdrant Cloud or multi-node Qdrant cluster |
+| **Object Store** | Local MinIO Container | AWS S3, Cloudflare R2, or Google Cloud Storage |
+| **LLM Provider** | OpenAI / Ollama / Local Proxy | Enterprise OpenAI endpoint, Azure OpenAI, or self-hosted vLLM |
 
-To keep prototype and production interchangeable without code changes, all external-service endpoints are environment-variable-driven (see `19_ENVIRONMENT_VARIABLES.md`): LLM base URL/API key/model name, Qdrant URL/API key, object storage endpoint/credentials/bucket, PostgreSQL connection strings (separate for Node.js Backend and AI schemas per `02_SYSTEM_ARCHITECTURE.md` §1's decision).
+---
 
-## 6. Local Development
+## 4. Scalability Principles for Heavy Document Archives
 
-- Docker Compose is used for local development: FastAPI service, worker process, local PostgreSQL, local Qdrant (Qdrant provides an official Docker image), and a local object-storage emulator (e.g., MinIO) — all swappable for their managed-cloud equivalents via env vars only.
-- **Ollama** may optionally be run locally as an OpenAI-compatible LLM endpoint for offline development, satisfying the "configurable OpenAI-compatible LLM endpoint" requirement without requiring internet access or API cost during early development — this is explicitly a local-dev convenience, never assumed in production configuration or documentation elsewhere in this pack.
+- **Bounded Memory via Streaming:** Because processing is page-batched, peak memory is strictly bounded by the page batch size (typically 10–20 pages), not total document size. A 500-page archive consumes the same peak memory footprint as a 10-page document.
+- **Stateless Restarts:** Every completed page batch commits its text and vector representations to storage immediately. If a worker instance is preempted or terminated by an auto-scaler, processing resumes at the batch checkpoint upon restart.
+- **Decoupled LLM Latency:** Embedding generation runs in-process or via high-throughput endpoints; query synthesis employs streaming tokens to minimize time-to-first-token (TTFT) for consuming client applications.
+
+---
+
+## 5. Local Development Environment
+
+Developers can launch the complete microservice infrastructure locally using Docker Compose:
+
+```yaml
+version: '3.8'
+services:
+  api:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    env_file: .env
+    depends_on:
+      - postgres
+      - qdrant
+
+  worker:
+    build: .
+    command: python -m app.workers.document_worker
+    env_file: .env
+    depends_on:
+      - postgres
+      - qdrant
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: rag_service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+```

@@ -1,58 +1,83 @@
-# 12 — Report Generation
+# 12 — Automated Report Generation
 
-## 1. Purpose
+## 1. Engine Purpose
 
-Automate compilation of geological/mining/production reports and responses to administrative/parliamentary inquiries, while preserving full traceability to source documents.
+The Automated Report Generation engine compiles multi-section analytical documents (such as executive briefings, quarterly operational reviews, risk assessments, and compliance audits) synthesized directly from ingested enterprise documents, guaranteeing verifiable citations for every factual statement.
 
-## 2. Report Types (extensible, not exhaustive)
+---
 
-- `production_summary` — structured aggregate + narrative context for a mine/subsidiary/period.
-- `parliamentary_response_draft` — answer to a specific inquiry question, structured similarly to a `hybrid` query response but formatted as a formal document with sections.
-- `custom` — a user-defined outline of sections, each independently populated using the same evidence-gathering/validation pipeline.
+## 2. Extensible Report Templates
 
-New report types are added by defining a new `parameters` sub-schema and a section-template mapping — not by changing the core generation engine.
+The microservice supports both pre-configured templates and custom dynamic outlines:
 
-## 3. Generation Pipeline
+| Report Template | Description | Primary Data Sources |
+|---|---|---|
+| `executive_summary` | High-level synthesis of strategic KPIs, organizational highlights, and emerging operational risks. | Hybrid: structured KPI totals + narrative executive statements. |
+| `operational_review` | Deep-dive evaluation of departmental performance, output metrics, and variance analysis across periods. | Structured facts for target vs. actual figures + narrative post-mortems. |
+| `compliance_audit_summary` | Evaluation of corporate disclosures against regulatory standards and internal policy benchmarks. | Unstructured RAG retrieval over audit logs, policies, and contracts. |
+| `custom_outline` | Client application provides an arbitrary list of section headings and target prompt directives. | Dynamically resolved via the section-by-section query pipeline. |
+
+---
+
+## 3. Section-by-Section Synthesis Pipeline
+
+To prevent hallucination and maintain strict context budgets, reports are compiled modularly:
 
 ```
-ReportGenerateRequest (report_type, parameters, scope)
-  → Resolve report outline (fixed template per report_type, or user-supplied outline for "custom")
-  → For each section:
-       → Formulate section-specific sub-query/queries (reusing the query router, 07_AI_QUERY_ENGINE.md)
-       → Retrieve structured facts + RAG evidence for that section
-       → Draft section content (LLM), constrained to retrieved evidence (same constraints as 11_CITATION_AND_VALIDATION.md)
-       → Validate claims in the section (evidence verification pipeline)
-       → Attach citations to the section
-  → Assemble full report (ordered sections + a consolidated source list/bibliography)
-  → Render to DOCX/PDF
-  → Persist ReportDraft + citation trail
-  → Notify Node.js Backend (job completion) → Node.js Backend persists report metadata & exposes to user
+Report Generation Request (Template / Custom Outline + Tenant Scope)
+  │
+  ▼
+[Outline & Section Decomposition]
+  ├── Breaks report into ordered section tasks: [Section 1, Section 2, ... Section N]
+  │
+  ▼
+[Section-by-Section Evidence Retrieval Loop]
+  ├── For each section:
+  │     ├── Formulate targeted sub-queries
+  │     ├── Retrieve relevant structured facts (PostgreSQL) and narrative chunks (Qdrant/FTS)
+  │     ├── Execute grounded LLM drafting with strict citation markers
+  │     ├── Run programmatic validation (check numeric fidelity and chunk entailment)
+  │     └── If evidence is missing → Emit explicit section disclaimer placeholder
+  │
+  ▼
+[Consolidated Assembly & Rendering]
+  ├── Order sections and format document layout
+  ├── Compile master citation bibliography (Document, Page, Section references)
+  ├── Render output artifact (DOCX / PDF)
+  └── Store rendered artifact in Object Storage & update Job Status to `READY`
 ```
 
-## 4. Explicit Non-Negotiable
+---
 
-> Do not blindly let the LLM generate an entire report from memory.
+## 4. Grounded Synthesis & Hallucination Prevention
 
-Enforced by: every section's content generation call is scoped to that section's retrieved evidence only (same evidence-block/citation-marker mechanism as `07`/`11`), and every section passes through claim validation before being included. A section for which no qualifying evidence is found is rendered with an explicit placeholder (e.g., "No supporting documentation was found for this section — manual input required") rather than omitted silently or filled with unsupported prose.
+1. **No Unbounded Generation:** The LLM is never tasked with generating an entire multi-page document from parametric memory. Each section prompt contains strictly the retrieved context relevant to that topic.
+2. **Mandatory Citations:** Every assertion in a generated section must reference a valid citation marker.
+3. **Missing Evidence Transparency:** If no qualifying evidence exists for a requested section, the engine renders an explicit callout:
+   > *"No supporting evidence was found in the workspace repository for this section."*
+   The system never fabricates placeholder narratives.
 
-## 5. Structured + Narrative Fusion in Report Sections
+---
 
-Report sections routinely need both: e.g., a "Production Performance" section needs the exact production/target/achievement figures (structured) and the narrative explanation of variance (RAG). Each section's sub-query is classified/handled via the same `HYBRID` mechanism as `07_AI_QUERY_ENGINE.md` §6, reusing that logic rather than duplicating it — the report generator is a *consumer* of the query engine, not a separate reasoning path.
+## 5. Structured & Narrative Data Fusion
 
-## 6. Output Rendering
+Report sections routinely require both exact numbers and explanatory narratives:
+- Example: An *"Operating Performance"* section synthesizes exact revenue/expense rows retrieved from the `ExtractedFact` table, alongside explanatory paragraphs retrieved via hybrid search explaining why cost variances occurred.
+- The report generation engine directly leverages the `HYBRID` query execution path defined in `07_AI_QUERY_ENGINE.md`.
 
-- **DOCX:** rendered via a Python DOCX library (e.g., `python-docx`), using a base template (heading styles, standard header/footer for CMPDI/Ministry-style formatting — exact branding/template details: **VERIFY AGAINST EXISTING REPOSITORY / stakeholder input**, not invented here).
-- **PDF:** either rendered directly or produced by converting the DOCX output (implementation choice, to be decided in Phase 15 based on available libraries in the deployment environment — flagged as an open implementation decision, not a fixed requirement).
-- Every rendered report embeds a source list (document name, page, section) per section, and ideally per-claim footnote-style references where the output format supports it.
+---
 
-## 7. Asynchronous Execution
+## 6. Document Compilation & Output Formats
 
-Report generation is always asynchronous (`POST /api/v1/reports/generate` returns a `job_id`; result fetched via `GET /api/v1/reports/{job_id}`), because it involves multiple retrieval/generation/validation passes (one or more per section) and can take longer than a typical synchronous request budget, especially for multi-section reports. See `14_ASYNC_PROCESSING.md`.
+- **Microsoft Word (DOCX):** Rendered using standard document templates (`python-docx`) with styled typographic hierarchies, tables, headers, footers, and footnote citations.
+- **PDF Export:** Generated via document conversion utilities or direct PDF template renderers.
+- **Master Provenance Trail:** Each generated report payload includes complete machine-readable provenance metadata, allowing consuming client applications to view the exact citation trail alongside the rendered file.
 
-## 8. Review & Approval
+---
 
-- Generated reports are drafts by default (`ReportDraft.status`). The `reports.approve` capability (see `10_MULTI_TENANCY_RBAC.md`) gates whether a report is marked as finalized/approved within Node.js Backend — this approval workflow lives in Node.js Backend (it is business-process state, not AI-processing state), with FastAPI only ever producing drafts and their evidence trails.
+## 7. Asynchronous Task Lifecycle
 
-## 9. Failure Handling
-
-- If a section repeatedly fails validation (e.g., evidence is too sparse/contradictory), the report job status becomes `PARTIAL` with the failing sections flagged, not silently dropped and not blocking the sections that did succeed.
+Because compiling multi-section reports involves multiple retrieval, synthesis, and validation iterations:
+- Client applications initiate report requests via `POST /api/v1/reports/generate`, which returns an immediate HTTP `202 Accepted` with a `job_id`.
+- The task executes in the background worker queue.
+- Progress and final downloadable artifacts are polled via `GET /api/v1/reports/{job_id}`.
