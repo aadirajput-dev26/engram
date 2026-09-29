@@ -66,8 +66,6 @@ async def process_query(
     if collection_id:
         col_stmt = select(Document.id).where(
             Document.folder_id == UUID(collection_id),
-            Document.org_id == org_uuid,
-            Document.workspace_id == ws_uuid,
         )
         col_res = await db.execute(col_stmt)
         col_doc_ids = list(col_res.scalars().all())
@@ -146,13 +144,15 @@ async def process_query(
             document_ids=doc_uuids,
         )
 
+    target_doc_ids = [str(u) for u in doc_uuids] if doc_uuids is not None else document_ids
+
     # Semantic search (Qdrant)
     semantic_results = semantic_search(
         query_text=query_text,
         org_id=org_id,
         workspace_id=workspace_id,
         top_n=settings.RETRIEVAL_TOP_N_SEMANTIC,
-        document_ids=document_ids,
+        document_ids=target_doc_ids,
     )
 
     # Keyword search (PostgreSQL FTS)
@@ -162,7 +162,7 @@ async def process_query(
         org_id=org_id,
         workspace_id=workspace_id,
         top_n=settings.RETRIEVAL_TOP_N_KEYWORD,
-        document_ids=document_ids,
+        document_ids=target_doc_ids,
     )
 
     # RRF Fusion
@@ -190,6 +190,18 @@ async def process_query(
             "confidence": 0.0,
             "latency_ms": elapsed_ms,
         }
+
+    # Ensure all reranked chunks have document_name populated
+    doc_ids_needed = set(r.get("document_id") for r in reranked if r.get("document_id") and not r.get("document_name"))
+    if doc_ids_needed:
+        from uuid import UUID as PyUUID
+        uuids = [PyUUID(d) for d in doc_ids_needed if d]
+        name_stmt = select(Document.id, Document.filename).where(Document.id.in_(uuids))
+        name_res = await db.execute(name_stmt)
+        name_map = {str(row[0]): row[1] for row in name_res.all()}
+        for r in reranked:
+            if not r.get("document_name"):
+                r["document_name"] = name_map.get(str(r.get("document_id")), "Document")
 
     # Build context with both chunks and structured facts
     messages = build_context(

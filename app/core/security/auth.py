@@ -36,6 +36,23 @@ from app.schemas.auth import TenantContext
 _bearer_scheme = HTTPBearer(auto_error=False)
 
 
+# In-memory cache for resolved TenantContext:
+# raw_key -> (TenantContext, expires_at_timestamp)
+import time
+
+_API_KEY_CACHE: dict[str, tuple[TenantContext, float]] = {}
+_API_KEY_CACHE_TTL = 300.0  # 5 minutes cache for hot API keys
+
+
+def invalidate_api_key_cache(raw_key: Optional[str] = None):
+    """Clear cached key or entire cache when an API key is revoked."""
+    global _API_KEY_CACHE
+    if raw_key:
+        _API_KEY_CACHE.pop(raw_key, None)
+    else:
+        _API_KEY_CACHE.clear()
+
+
 async def require_api_key(
     x_api_key: Optional[str] = Header(None, alias="X-Api-Key"),
     credentials: Optional[HTTPAuthorizationCredentials] = Security(_bearer_scheme),
@@ -70,6 +87,16 @@ async def require_api_key(
             },
         )
 
+    # 0. Check in-memory TTL cache (0ms instant lookup)
+    now = time.time()
+    cached = _API_KEY_CACHE.get(raw_key)
+    if cached is not None:
+        tenant_context, expires_at = cached
+        if now < expires_at:
+            return tenant_context
+        else:
+            _API_KEY_CACHE.pop(raw_key, None)
+
     # 1. Programmatic API key path (sk-engram-*)
     if raw_key.startswith("sk-engram-"):
         from app.services.auth_service import resolve_key
@@ -85,12 +112,14 @@ async def require_api_key(
                     }
                 },
             )
-        return TenantContext(
+        tenant_context = TenantContext(
             org_id=api_key.org_id,
             workspace_id=api_key.workspace_id,
             user_id=api_key.created_by,
             key_id=api_key.id,
         )
+        _API_KEY_CACHE[raw_key] = (tenant_context, now + _API_KEY_CACHE_TTL)
+        return tenant_context
 
     # 2. Master service key path (settings.AI_SERVICE_API_KEY)
     if raw_key == settings.AI_SERVICE_API_KEY:
@@ -100,20 +129,24 @@ async def require_api_key(
             ws_res = await db.execute(select(Workspace).order_by(Workspace.created_at.asc()).limit(1))
             ws = ws_res.scalar_one_or_none()
             if ws:
-                return TenantContext(
+                tenant_context = TenantContext(
                     org_id=ws.org_id,
                     workspace_id=ws.id,
                     user_id=UUID("00000000-0000-0000-0000-000000000001"),
                     key_id=UUID("00000000-0000-0000-0000-000000000001"),
                 )
+                _API_KEY_CACHE[raw_key] = (tenant_context, now + _API_KEY_CACHE_TTL)
+                return tenant_context
         except Exception:
             pass
-        return TenantContext(
+        tenant_context = TenantContext(
             org_id=UUID("00000000-0000-0000-0000-000000000001"),
             workspace_id=UUID("00000000-0000-0000-0000-000000000001"),
             user_id=UUID("00000000-0000-0000-0000-000000000001"),
             key_id=UUID("00000000-0000-0000-0000-000000000001"),
         )
+        _API_KEY_CACHE[raw_key] = (tenant_context, now + _API_KEY_CACHE_TTL)
+        return tenant_context
 
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

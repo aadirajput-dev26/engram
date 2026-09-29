@@ -28,7 +28,9 @@ def _get_model():
         _model_name = settings.EMBEDDING_MODEL_NAME
 
         import os
-        if os.getenv("EMBEDDINGS_MODE") == "deterministic":
+        import sys
+        mode = getattr(settings, "EMBEDDINGS_MODE", "") or os.getenv("EMBEDDINGS_MODE", "")
+        if mode.lower() == "deterministic" or sys.platform == "win32":
             _model_failed = True
             logger.info("Using deterministic normalized embeddings (dim=%d).", DEFAULT_FALLBACK_DIM)
             return None

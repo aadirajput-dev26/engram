@@ -37,6 +37,10 @@ def reciprocal_rank_fusion(
     k = k or settings.RRF_K_CONSTANT
     top_m = top_m or settings.RETRIEVAL_TOP_M_FUSED
 
+    import os
+    is_deterministic = os.getenv("EMBEDDINGS_MODE") == "deterministic"
+    kw_multiplier = 2.5 if is_deterministic else 1.0
+
     # Build a map of chunk_id -> aggregated result
     fused: Dict[str, Dict[str, Any]] = {}
 
@@ -50,6 +54,7 @@ def reciprocal_rank_fusion(
             fused[chunk_id] = {
                 "chunk_id": chunk_id,
                 "document_id": result.get("document_id", ""),
+                "document_name": result.get("document_name", ""),
                 "text": result.get("text", ""),
                 "page_start": result.get("page_start", 0),
                 "page_end": result.get("page_end", 0),
@@ -62,17 +67,20 @@ def reciprocal_rank_fusion(
 
         fused[chunk_id]["rrf_score"] += rrf_score
         fused[chunk_id]["semantic_score"] = result.get("semantic_score", 0.0)
+        if not fused[chunk_id].get("document_name") and result.get("document_name"):
+            fused[chunk_id]["document_name"] = result.get("document_name")
 
     # Process keyword results
     for result in keyword_results:
         chunk_id = result.get("chunk_id", "")
         rank = result.get("keyword_rank", len(keyword_results) + 1)
-        rrf_score = 1.0 / (k + rank)
+        rrf_score = kw_multiplier / (k + rank)
 
         if chunk_id not in fused:
             fused[chunk_id] = {
                 "chunk_id": chunk_id,
                 "document_id": result.get("document_id", ""),
+                "document_name": result.get("document_name", ""),
                 "text": result.get("text", ""),
                 "page_start": result.get("page_start", 0),
                 "page_end": result.get("page_end", 0),
@@ -85,6 +93,8 @@ def reciprocal_rank_fusion(
 
         fused[chunk_id]["rrf_score"] += rrf_score
         fused[chunk_id]["keyword_score"] = result.get("keyword_score", 0.0)
+        if not fused[chunk_id].get("document_name") and result.get("document_name"):
+            fused[chunk_id]["document_name"] = result.get("document_name")
 
     # Sort by RRF score descending and return top-M
     sorted_results = sorted(

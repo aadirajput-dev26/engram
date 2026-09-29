@@ -188,7 +188,7 @@ def test_get_documents_list(client: TestClient, mock_tenant: TenantContext):
     ]
 
     mock_db = AsyncMock()
-    mock_db.execute.side_effect = [mock_count_res, mock_docs_res, mock_jobs_res]
+    mock_db.execute.side_effect = [mock_docs_res, mock_jobs_res]
     app.dependency_overrides[get_db] = lambda: mock_db
 
     from app.core.security.auth import require_api_key

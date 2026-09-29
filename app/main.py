@@ -36,6 +36,8 @@ def _error_envelope(code: str, message: str, details: Any = None) -> dict:
 async def lifespan(app: FastAPI):
     """Application lifespan: startup and shutdown hooks."""
     global _ready
+    import os
+    import asyncio
     settings = get_settings()
     setup_logging("DEBUG" if settings.SERVICE_ENV == "local" else "INFO")
     logger.info(
@@ -43,14 +45,26 @@ async def lifespan(app: FastAPI):
     )
 
     # Startup: initialize resources
-    # DB pool, embedding model, etc. will be initialized here in later slices
     _ready = True
     logger.info("Service is ready")
+
+    # Start embedded worker task so documents are processed automatically without requiring a separate process
+    worker_task = None
+    if os.getenv("ENABLE_EMBEDDED_WORKER", "true").lower() in ("true", "1", "yes"):
+        from app.workers.runner import run_worker_loop
+        logger.info("Starting embedded document processing worker loop...")
+        worker_task = asyncio.create_task(run_worker_loop())
 
     yield
 
     # Shutdown: clean up resources
     _ready = False
+    if worker_task:
+        worker_task.cancel()
+        try:
+            await worker_task
+        except (asyncio.CancelledError, Exception):
+            pass
     logger.info("Service shutting down")
 
 
@@ -85,12 +99,13 @@ async def general_exception_handler(
     request: Request, exc: Exception
 ) -> JSONResponse:
     """Catch-all handler returning the standard error envelope."""
-    logger.exception("Unhandled exception on %s %s", request.method, request.url.path)
+    logger.exception("Unhandled exception on %s %s: %s", request.method, request.url.path, exc)
     return JSONResponse(
         status_code=500,
         content=_error_envelope(
             code="INTERNAL_ERROR",
-            message="An unexpected error occurred.",
+            message=str(exc) or "An unexpected error occurred.",
+            details={"type": type(exc).__name__, "detail": str(exc)},
         ),
     )
 

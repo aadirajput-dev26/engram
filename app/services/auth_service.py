@@ -290,6 +290,14 @@ async def revoke_api_key(
     if not key:
         return False
     key.is_active = False
+
+    # Evict from in-memory cache
+    try:
+        from app.core.security.auth import invalidate_api_key_cache
+        invalidate_api_key_cache()
+    except Exception:
+        pass
+
     logger.info("Revoked API key id=%s org=%s", key_id, org_id)
     return True
 
@@ -301,7 +309,8 @@ async def revoke_api_key(
 async def resolve_key(db: AsyncSession, raw_key: str) -> Optional[ApiKey]:
     """
     Look up an API key by its SHA-256 hash.
-    Updates last_used_at on hit. Returns None if not found or inactive.
+    Throttles last_used_at to at most once every 5 minutes to avoid burning DB write locks on every request.
+    Returns None if not found or inactive.
     """
     key_hash = _hash_key(raw_key)
     result = await db.execute(
@@ -311,10 +320,12 @@ async def resolve_key(db: AsyncSession, raw_key: str) -> Optional[ApiKey]:
     )
     api_key = result.scalar_one_or_none()
     if api_key:
-        # Touch last_used_at without a full model load/commit cycle
-        await db.execute(
-            update(ApiKey)
-            .where(ApiKey.id == api_key.id)
-            .values(last_used_at=datetime.now(timezone.utc))
-        )
+        now_utc = datetime.now(timezone.utc)
+        # Only write to DB if last_used_at is None or older than 5 minutes
+        if api_key.last_used_at is None or (now_utc - api_key.last_used_at).total_seconds() > 300:
+            await db.execute(
+                update(ApiKey)
+                .where(ApiKey.id == api_key.id)
+                .values(last_used_at=now_utc)
+            )
     return api_key

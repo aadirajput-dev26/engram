@@ -8,14 +8,14 @@ import hashlib
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Query, UploadFile, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
 from app.core.logging import get_logger
 from app.core.security.auth import require_api_key
-from app.db.session import get_db
+from app.db.session import async_session_factory, get_db
 from app.models.chunk import Chunk
 from app.models.document import Document
 from app.models.job import ProcessingJob
@@ -30,15 +30,29 @@ from app.schemas.document import (
     ProcessingStatusResponse,
     ReprocessRequest,
 )
-from app.services.document_service import ingest_document
+from app.services.document_service import ingest_document, queue_document_ingest, process_document_pipeline
 
 logger = get_logger(__name__)
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
+async def _bg_run_document_pipeline(job_id: UUID, document_id: UUID, version_id: UUID, file_path: str):
+    try:
+        async with async_session_factory() as session:
+            await process_document_pipeline(
+                session=session,
+                job_id=job_id,
+                document_id=document_id,
+                document_version_id=version_id,
+                file_path=file_path,
+            )
+    except Exception as e:
+        logger.exception("Background pipeline execution failed for doc %s: %s", document_id, e)
+
 
 @router.post("/ingest", response_model=DocumentIngestResponse)
 async def ingest(
+    background_tasks: BackgroundTasks,
     file: Optional[UploadFile] = File(None),
     url: Optional[str] = Form(None),
     filename: Optional[str] = Form(None),
@@ -117,7 +131,7 @@ async def ingest(
         )
 
     try:
-        result = await ingest_document(
+        result = await queue_document_ingest(
             db=db,
             file_data=file_data,
             filename=effective_filename,
@@ -129,6 +143,16 @@ async def ingest(
             content_hash=effective_hash,
             declared_mime_type=effective_mime,
         )
+
+        # Dispatch background pipeline execution (Non-blocking response returns <50ms)
+        background_tasks.add_task(
+            _bg_run_document_pipeline,
+            UUID(result["job_id"]),
+            UUID(result["document_id"]),
+            UUID(result["document_version_id"]),
+            result["file_path"],
+        )
+
         return DocumentIngestResponse(
             document_id=UUID(result["document_id"]),
             document_version_id=UUID(result["document_version_id"]),
@@ -160,16 +184,7 @@ async def list_documents(
     List all documents in the caller's workspace with pagination and status.
     Workspace scope is derived automatically from the API key.
     """
-    count_query = select(func.count(Document.id)).where(
-        Document.workspace_id == tenant.workspace_id,
-        Document.org_id == tenant.org_id,
-    )
-    if folder_id:
-        count_query = count_query.where(Document.folder_id == folder_id)
-
-    total_res = await db.execute(count_query)
-    total = total_res.scalar_one() or 0
-
+    # 1. Fetch documents page
     stmt = select(Document).where(
         Document.workspace_id == tenant.workspace_id,
         Document.org_id == tenant.org_id,
@@ -180,6 +195,19 @@ async def list_documents(
     stmt = stmt.order_by(Document.created_at.desc()).offset(skip).limit(limit)
     res = await db.execute(stmt)
     docs = res.scalars().all()
+
+    # 2. Count total documents (skip redundant DB round-trip if on page 1 and fewer than limit)
+    if skip == 0 and len(docs) < limit:
+        total = len(docs)
+    else:
+        count_query = select(func.count(Document.id)).where(
+            Document.workspace_id == tenant.workspace_id,
+            Document.org_id == tenant.org_id,
+        )
+        if folder_id:
+            count_query = count_query.where(Document.folder_id == folder_id)
+        total_res = await db.execute(count_query)
+        total = total_res.scalar_one() or 0
 
     # Query latest job status for these documents
     doc_ids = [d.id for d in docs]

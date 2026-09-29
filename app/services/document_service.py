@@ -428,3 +428,91 @@ async def process_document_pipeline(
     ]
     upsert_chunks(chunk_ids, vectors, payloads)
 
+    # Update job status to READY
+    res_job = await session.execute(select(ProcessingJob).where(ProcessingJob.id == job_id))
+    job = res_job.scalar_one_or_none()
+    if job:
+        job.overall_status = "READY"
+    await session.commit()
+    logger.info("Async document processing complete for %s (job=%s)", doc.filename, job_id)
+
+
+async def queue_document_ingest(
+    db: AsyncSession,
+    file_data: bytes,
+    filename: str,
+    org_id: str,
+    workspace_id: str,
+    uploaded_by_user_id: str,
+    document_id: Optional[str] = None,
+    folder_id: Optional[str] = None,
+    content_hash: Optional[str] = None,
+    declared_mime_type: str = "application/pdf",
+) -> Dict[str, Any]:
+    """
+    Fast non-blocking document ingestion queueing.
+    Saves file to storage and creates database records in < 50ms,
+    deferring heavy OCR / embedding / indexing to background execution.
+    """
+    storage = get_storage()
+
+    computed_hash = storage.compute_hash(file_data)
+    if content_hash and content_hash != computed_hash:
+        raise ValueError(
+            f"Content hash mismatch: declared={content_hash}, computed={computed_hash}"
+        )
+
+    doc_id = uuid.UUID(document_id) if document_id else uuid.uuid4()
+    doc = Document(
+        id=doc_id,
+        org_id=uuid.UUID(org_id),
+        workspace_id=uuid.UUID(workspace_id),
+        folder_id=uuid.UUID(folder_id) if folder_id else None,
+        filename=filename,
+        content_hash=computed_hash,
+    )
+    db.add(doc)
+    await db.flush()
+
+    version_id = uuid.uuid4()
+    file_key = f"documents/{org_id}/{workspace_id}/{doc_id}/{version_id}/{filename}"
+    storage.save_file(file_key, file_data)
+
+    version = DocumentVersion(
+        id=version_id,
+        document_id=doc_id,
+        version_number=1,
+        file_ref=file_key,
+        declared_mime_type=declared_mime_type,
+        uploaded_by_user_id=uuid.UUID(uploaded_by_user_id),
+    )
+    db.add(version)
+    await db.flush()
+
+    doc.current_version_id = version_id
+
+    job_id = uuid.uuid4()
+    job = ProcessingJob(
+        id=job_id,
+        document_id=doc_id,
+        document_version_id=version_id,
+        org_id=uuid.UUID(org_id),
+        workspace_id=uuid.UUID(workspace_id),
+        overall_status="QUEUED",
+        stages=[],
+        created_by_user_id=uuid.UUID(uploaded_by_user_id),
+    )
+    db.add(job)
+    await db.commit()
+
+    file_path = storage.get_file_path(file_key)
+
+    return {
+        "document_id": str(doc_id),
+        "document_version_id": str(version_id),
+        "job_id": str(job_id),
+        "status": "QUEUED",
+        "file_path": file_path,
+    }
+
+

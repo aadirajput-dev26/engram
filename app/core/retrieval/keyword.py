@@ -69,22 +69,24 @@ async def keyword_search(
         SELECT
             CAST(c.id AS text) AS chunk_id,
             CAST(c.document_id AS text) AS document_id,
+            d.filename AS document_name,
             c.text,
             c.page_start,
             c.page_end,
             c.section_path,
             c.chunk_type,
             (
-                COALESCE(ts_rank_cd(COALESCE(c.tsv, to_tsvector('english', c.text)), plainto_tsquery('english', :query)), 0.0) * 2.0
-                + (CASE WHEN :has_or = true THEN COALESCE(ts_rank_cd(COALESCE(c.tsv, to_tsvector('english', c.text)), to_tsquery('english', :or_query)), 0.0) ELSE 0.0 END)
+                COALESCE(ts_rank_cd(to_tsvector('english', c.text), plainto_tsquery('english', :query)), 0.0) * 2.0
+                + (CASE WHEN :has_or = true THEN COALESCE(ts_rank_cd(to_tsvector('english', c.text), to_tsquery('english', :or_query)), 0.0) ELSE 0.0 END)
             ) AS keyword_score
         FROM chunks c
+        LEFT JOIN documents d ON c.document_id = d.id
         WHERE
             c.org_id = :org_id
             AND c.workspace_id = :workspace_id
             AND (
-                COALESCE(c.tsv, to_tsvector('english', c.text)) @@ plainto_tsquery('english', :query)
-                OR (:has_or = true AND COALESCE(c.tsv, to_tsvector('english', c.text)) @@ to_tsquery('english', :or_query))
+                to_tsvector('english', c.text) @@ plainto_tsquery('english', :query)
+                OR (:has_or = true AND to_tsvector('english', c.text) @@ to_tsquery('english', :or_query))
             )
             {doc_filter}
         ORDER BY keyword_score DESC
@@ -99,6 +101,7 @@ async def keyword_search(
         results.append({
             "chunk_id": row["chunk_id"],
             "document_id": row["document_id"],
+            "document_name": row.get("document_name") or "",
             "text": row["text"],
             "page_start": row["page_start"],
             "page_end": row["page_end"],

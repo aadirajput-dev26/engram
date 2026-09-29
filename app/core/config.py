@@ -85,6 +85,7 @@ class Settings(BaseSettings):
     LLM_REQUEST_TIMEOUT_SECONDS: int = 60
 
     # --- 6. Embeddings & Reranking ---
+    EMBEDDINGS_MODE: str = "deterministic"
     EMBEDDING_MODEL_NAME: str = "BAAI/bge-base-en-v1.5"
     EMBEDDING_BATCH_SIZE: int = 32
     RERANKER_MODEL_NAME: str = "BAAI/bge-reranker-base"
