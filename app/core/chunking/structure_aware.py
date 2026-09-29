@@ -14,7 +14,7 @@ import hashlib
 import re
 import uuid
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from app.core.logging import get_logger
 
@@ -24,6 +24,18 @@ logger = get_logger(__name__)
 DEFAULT_MIN_CHUNK_TOKENS = 100
 DEFAULT_MAX_CHUNK_TOKENS = 600
 DEFAULT_OVERLAP_RATIO = 0.10  # 10% overlap for split chunks
+
+
+@dataclass
+class MappedSection:
+    """Represents a mapped section of a document."""
+    id: uuid.UUID
+    parent_id: Optional[uuid.UUID]
+    title: str
+    page_start: int
+    page_end: int
+    section_path: str
+    level: int = 1
 
 
 @dataclass
@@ -54,7 +66,7 @@ def _compute_hash(text: str) -> str:
 
 def chunk_document(
     pages_text: dict[int, str],
-    sections: List[Any],
+    sections: List[MappedSection],
     tables_text: dict[int, List[str]],
     max_tokens: int = DEFAULT_MAX_CHUNK_TOKENS,
     min_tokens: int = DEFAULT_MIN_CHUNK_TOKENS,

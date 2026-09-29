@@ -6,8 +6,7 @@ from __future__ import annotations
 
 import uuid
 
-from app.core.chunking.structure_aware import chunk_document
-from app.core.pageindex.mapper import MappedSection
+from app.core.chunking.structure_aware import MappedSection, chunk_document
 
 
 def test_chunking_respects_section_boundaries():

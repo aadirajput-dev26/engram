@@ -47,7 +47,9 @@ def _get_model():
             logger.warning("FastEmbed init failed (%s). Attempting SentenceTransformer fallback.", e_fast)
 
         try:
-            from sentence_transformers import SentenceTransformer
+            import importlib
+            st_mod = importlib.import_module("sentence_transformers")
+            SentenceTransformer = st_mod.SentenceTransformer
 
             _model = SentenceTransformer(_model_name)
             _model_type = "sentence_transformers"

@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.chunking.structure_aware import ChunkRecord, chunk_document
+from app.core.chunking.structure_aware import ChunkRecord, MappedSection, chunk_document
 from app.core.config import get_settings
 from app.core.embeddings.embedding_service import embed_texts, get_embedding_dimension, get_model_name
 from app.core.logging import get_logger
@@ -345,6 +345,7 @@ async def process_document_pipeline(
 
     sections: List[MappedSection] = []
     try:
+        from app.core.parsing.pageindex_adapter import get_pageindex_adapter, map_tree_to_sections  # type: ignore
         adapter = get_pageindex_adapter()
         pi_result = adapter.process_document(file_path)
         if pi_result.success and pi_result.tree:
@@ -354,7 +355,7 @@ async def process_document_pipeline(
                 if pi_text and len(pi_text) > len(pages_text.get(page_num, "")):
                     pages_text[page_num] = pi_text
     except Exception as e:
-        logger.warning("PageIndex error in async pipeline: %s", e)
+        logger.debug("PageIndex adapter skipped: %s", e)
 
     for ms in sections:
         sec = Section(
